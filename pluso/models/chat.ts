@@ -1,8 +1,6 @@
-
-import { BaseMessage } from '@langchain/core/messages';
-import { BaseChatModel } from '@langchain/core/language_models/chat_models';
-import { ModelConfig } from './config';
-import { ModelFactory } from './factory';
+import { ModelConfig } from './config.ts';
+import { ModelFactory } from './factory.ts';
+import { ChatResponse, BaseMessage, ChatServiceError } from './types.ts';
 
 export class ChatService {
   private model: BaseChatModel;
@@ -11,25 +9,38 @@ export class ChatService {
     this.model = ModelFactory.createModel(config);
   }
 
-  async sendMessage(messages: BaseMessage[]) {
+  async sendMessage(messages: BaseMessage[]): Promise<ChatResponse> {
     try {
       const response = await this.model.invoke(messages);
       return response;
     } catch (error) {
-      console.error('Error in chat service:', error);
-      throw error;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      throw new ChatServiceError(`Failed to send message: ${errorMessage}`, error instanceof Error ? error : undefined);
     }
   }
 
-  async *streamMessage(messages: BaseMessage[]) {
+  async *streamMessage(messages: BaseMessage[]): AsyncGenerator<ChatResponse, void, unknown> {
     try {
       const stream = await this.model.stream(messages);
       for await (const chunk of stream) {
         yield chunk;
       }
     } catch (error) {
-      console.error('Error in chat service stream:', error);
-      throw error;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      throw new ChatServiceError(`Failed to stream message: ${errorMessage}`, error instanceof Error ? error : undefined);
+    }
+  }
+
+  // Add method to validate messages before sending
+  private validateMessages(messages: BaseMessage[]): void {
+    if (!Array.isArray(messages) || messages.length === 0) {
+      throw new ChatServiceError('Messages must be a non-empty array');
+    }
+
+    for (const message of messages) {
+      if (!message.role || !message.content) {
+        throw new ChatServiceError('Invalid message format: Each message must have role and content');
+      }
     }
   }
 }

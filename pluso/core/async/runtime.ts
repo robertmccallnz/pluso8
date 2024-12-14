@@ -1,5 +1,5 @@
 // core/async/runtime.ts
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 
 interface TaskOptions {
   priority?: 'high' | 'normal' | 'low';

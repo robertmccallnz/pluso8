@@ -1,10 +1,11 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { Head } from "$fresh/runtime.ts";
-import ChatInterface from "../../islands/ChatInterface.tsx";
+import PetuniaChat from "../../islands/interfaces/PetuniaChat.tsx";
 
-interface Message {
-  role: "assistant" | "user";
-  content: string;
+interface ExpertiseArea {
+  title: string;
+  description: string;
+  icon: string;
 }
 
 export const handler: Handlers = {
@@ -12,7 +13,6 @@ export const handler: Handlers = {
     const form = await req.formData();
     const message = form.get("message")?.toString() || "";
 
-    // Example response structure
     const response = {
       messages: [
         { role: "user", content: message },
@@ -25,47 +25,97 @@ export const handler: Handlers = {
 };
 
 export default function PetuniaPage() {
+  const expertiseAreas: ExpertiseArea[] = [
+    {
+      title: "Native Plants",
+      description: "Expert knowledge of New Zealand's indigenous flora",
+      icon: "🌿"
+    },
+    {
+      title: "Sustainable Gardening",
+      description: "Eco-friendly gardening practices and techniques",
+      icon: "🌱"
+    },
+    {
+      title: "Conservation",
+      description: "Ecological preservation and native species protection",
+      icon: "🍃"
+    }
+  ];
+
   return (
-    <>
+    <div class="min-h-screen bg-[#F5F5F5]">
       <Head>
         <title>Petunia - PluSO Nature Guide</title>
         <meta name="description" content="Expert in New Zealand flora and gardening" />
       </Head>
 
-      <div class="min-h-screen bg-white">
-        {/* Petunia Introduction */}
-        <div class="max-w-4xl mx-auto pt-24 px-4">
-          <div class="text-center mb-12">
-            <svg viewBox="0 0 200 120" class="h-32 mx-auto mb-8">
-              {/* ... SVG content ... */}
-            </svg>
-
-            <div class="space-y-4">
-              <p class="font-mono text-xl">
-                <span class="text-[#FF6B00]">Kia ora!</span> Welcome to your personal garden guide
-              </p>
-              <p class="font-mono text-gray-600 max-w-2xl mx-auto">
-                Expert in New Zealand native plants, sustainable gardening practices, and ecological conservation. 
-                Fluent in both te reo Māori and English.
-              </p>
-            </div>
+      <main class="max-w-4xl mx-auto pt-24 px-4">
+        {/* Header Section */}
+        <div class="text-center mb-16">
+          <div class="w-32 h-32 mx-auto mb-8 rounded-full border-4 border-[#333333] flex items-center justify-center">
+            <span class="text-5xl">🌺</span>
           </div>
 
-          {/* Expertise Areas */}
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {/* ... expertise areas content ... */}
-          </div>
-
-          {/* Chat Interface */}
-          <div class="max-w-3xl mx-auto mb-12">
-            <ChatInterface 
-              endpoint="/petunia"
-              agentName="PETUNIA"
-              allowFiles={false}
-            />
+          <h1 class="text-6xl font-bold text-[#333333] mb-4">Petunia</h1>
+          <div class="space-y-4">
+            <p class="text-xl text-[#333333]">
+              <span class="font-semibold">Kia ora!</span> Welcome to your personal garden guide
+            </p>
+            <p class="text-[#333333]/70 max-w-2xl mx-auto">
+              Expert in New Zealand native plants, sustainable gardening practices, and ecological conservation. 
+              Fluent in both te reo Māori and English.
+            </p>
           </div>
         </div>
-      </div>
-    </>
+
+        {/* Expertise Areas */}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          {expertiseAreas.map((area) => (
+            <div class="bg-[#333333]/10 rounded-lg p-6 text-center">
+              <div class="text-4xl mb-4">{area.icon}</div>
+              <h3 class="text-xl font-semibold text-[#333333] mb-2">{area.title}</h3>
+              <p class="text-[#333333]/70">{area.description}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Services Section */}
+        <div class="bg-[#333333]/10 rounded-lg p-6 mb-16">
+          <h2 class="text-2xl font-semibold text-[#333333] mb-4">Services</h2>
+          <ul class="space-y-2">
+            <li class="flex items-center text-[#333333]">
+              <span class="mr-2">✓</span>
+              Plant identification and care advice
+            </li>
+            <li class="flex items-center text-[#333333]">
+              <span class="mr-2">✓</span>
+              Garden planning and maintenance tips
+            </li>
+            <li class="flex items-center text-[#333333]">
+              <span class="mr-2">✓</span>
+              Native species conservation guidance
+            </li>
+            <li class="flex items-center text-[#333333]">
+              <span class="mr-2">✓</span>
+              Sustainable gardening practices
+            </li>
+          </ul>
+        </div>
+
+        {/* Chat Interface */}
+        <div class="max-w-3xl mx-auto mb-16">
+          <PetuniaChat 
+            endpoint="/petunia"
+            agentName="PETUNIA"
+            allowFiles={false}
+          />
+        </div>
+
+        <footer class="text-center text-[#333333]/60 text-sm py-8">
+          © {new Date().getFullYear()} PluSO | Expert Garden Guidance
+        </footer>
+      </main>
+    </div>
   );
 }

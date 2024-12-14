@@ -1,5 +1,6 @@
-import { parse, join, dirname, resolve, relative } from "https://deno.land/std@0.224.0/path/mod.ts";
-import { toFileUrl } from "https://deno.land/std@0.224.0/path/to_file_url.ts";
+import { _parse, _join, dirname, resolve, relative } from "jsr:@std/path";
+import { toFileUrl } from "jsr:@std/path/to_file_url";
+
 
 // Custom type guard to safely check if something is an Error
 function isError(error: unknown): error is Error {

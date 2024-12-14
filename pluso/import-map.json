@@ -1,46 +1,21 @@
 {
-  "nodeModulesDir": "auto",
   "imports": {
     "@/": "./",
-    "@/tools/kupu-scraper/": "./tools/kupu-scraper/",
-    "@/tools/te-reo-assistant.ts/": "./tools/te-reo-assistant.ts/",
-    "$fresh/": "https://deno.land/x/fresh@1.5.2/",
-    "$std/": "https://deno.land/std@0.220.1/",
+    "@/components/": "./components/",
+    "@/islands/": "./islands/",
+    "@/routes/": "./routes/",
+    "@/lib/": "./lib/",
+    "@/models/": "./models/",
+    "@/types/": "./types/",
+    "@/utils/": "./utils/",
+    "@/core/": "./core/",
+    "$fresh/": "https://deno.land/x/fresh@1.7.3/",
     "preact": "https://esm.sh/preact@10.22.0",
     "preact/": "https://esm.sh/preact@10.22.0/",
-    "preact/hooks": "https://esm.sh/preact@10.19.2/hooks",
-    "preact-render-to-string": "https://esm.sh/preact-render-to-string@6.2.3",
-    "@preact/signals": "https://esm.sh/@preact/signals@1.2.2",
-    "@preact/signals-core": "https://esm.sh/@preact/signals-core@1.5.1",
-    "twind": "https://esm.sh/twind@0.16.19",
-    "twind/": "https://esm.sh/twind@0.16.19/",
-    "twind/sheets": "https://esm.sh/v128/twind@0.16.19/sheets/sheets.js",
+     "@preact/signals": "https://esm.sh/*@preact/signals@1.2.2",
+    "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.1",
     "tailwindcss": "npm:tailwindcss@3.4.1",
-    "tailwindcss/plugin": "npm:tailwindcss@3.4.1/plugin",
-     "lucide-icons/": "https://unpkg.com/lucide-icons@0.x/",
-    "lucide-icons/preact": "https://unpkg.com/lucide-icons-preact@0.x/dist/esm/lucide-icons-preact.js"
-  },
-  "compilerOptions": {
-    "allowJs": true,
-    "lib": ["deno.window", "dom"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact",
-    "strict": true
-  },
-  "tasks": {
-    "start": "deno run -A --watch=static/,routes/ dev.ts",
-    "update": "deno run -A -r https://fresh.deno.dev/update .",
-    "build": "deno run -A dev.ts build",
-    "preview": "deno run -A main.ts",
-    "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx"
-  },
-  "lint": { 
-    "rules": { 
-      "tags": ["fresh", "recommended"] 
-    } 
-  },
-  "exclude": [
-    "**/_fresh/*",
-    "**/*.js"
-  ]
+    "tailwindcss/": "npm:/tailwindcss@3.4.1/",
+    "$std/": "https://deno.land/std@0.216.0/"
+  }
 }

@@ -1,6 +1,6 @@
 // islands/AnimatedBackground.tsx
 import { useEffect, useRef } from "preact/hooks";
-import { tw } from "twind";
+import  tw  from "$fresh/plugins/twind.ts";
 
 export default function AnimatedBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
