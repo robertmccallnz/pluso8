@@ -4,29 +4,31 @@
 
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
+import * as $_middleware from "./routes/_middleware.ts";
 import * as $about from "./routes/about.tsx";
 import * as $api_agent_chat from "./routes/api/agent-chat.ts";
 import * as $api_agents_chat from "./routes/api/agents/chat.ts";
-import * as $api_agents_config from "./routes/api/agents/config.ts";
 import * as $api_agents_index from "./routes/api/agents/index.ts";
 import * as $api_agents_management from "./routes/api/agents/management.ts";
 import * as $api_agents_ws_chat from "./routes/api/agents/ws-chat.ts";
-import * as $api_debug_joke from "./routes/api/debug/joke.ts";
-import * as $api_joke from "./routes/api/joke.ts";
-import * as $dashboard_index from "./routes/dashboard/index.tsx";
+import * as $api_create_checkout_session from "./routes/api/create-checkout-session.ts";
+import * as $api_legal_chat from "./routes/api/legal-chat.ts";
+import * as $api_upload_pdf from "./routes/api/upload-pdf.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
-import * as $legal_index from "./routes/legal/index.tsx";
+import * as $jeff_config from "./routes/jeff/config.ts";
+import * as $jeff_configloader from "./routes/jeff/configloader.ts";
+import * as $jeff_index from "./routes/jeff/index.tsx";
+import * as $jeff_services_scraper_legislationScraper from "./routes/jeff/services/scraper/legislationScraper.ts";
+import * as $maia_config from "./routes/maia/config.ts";
 import * as $maia_index from "./routes/maia/index.tsx";
 import * as $petunia_index from "./routes/petunia/index.tsx";
-import * as $AgentCreationCard from "./islands/AgentCreationCard.tsx";
 import * as $AnimatedBackground from "./islands/AnimatedBackground.tsx";
-import * as $Dashboard_DeploymentManager from "./islands/Dashboard/DeploymentManager.tsx";
-import * as $Dashboard_ToolSelector from "./islands/Dashboard/ToolSelector.tsx";
 import * as $FeatureHighlight from "./islands/FeatureHighlight.tsx";
 import * as $NavBar from "./islands/NavBar.tsx";
 import * as $agents_Chat from "./islands/agents/Chat.tsx";
 import * as $interfaces_AgentConfig from "./islands/interfaces/AgentConfig.tsx";
+import * as $interfaces_AuthComponent from "./islands/interfaces/AuthComponent.tsx";
 import * as $interfaces_LegalChat from "./islands/interfaces/LegalChat.tsx";
 import * as $interfaces_MaiaChat from "./islands/interfaces/MaiaChat.tsx";
 import * as $interfaces_PetuniaChat from "./islands/interfaces/PetuniaChat.tsx";
@@ -37,31 +39,34 @@ const manifest = {
   routes: {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
+    "./routes/_middleware.ts": $_middleware,
     "./routes/about.tsx": $about,
     "./routes/api/agent-chat.ts": $api_agent_chat,
     "./routes/api/agents/chat.ts": $api_agents_chat,
-    "./routes/api/agents/config.ts": $api_agents_config,
     "./routes/api/agents/index.ts": $api_agents_index,
     "./routes/api/agents/management.ts": $api_agents_management,
     "./routes/api/agents/ws-chat.ts": $api_agents_ws_chat,
-    "./routes/api/debug/joke.ts": $api_debug_joke,
-    "./routes/api/joke.ts": $api_joke,
-    "./routes/dashboard/index.tsx": $dashboard_index,
+    "./routes/api/create-checkout-session.ts": $api_create_checkout_session,
+    "./routes/api/legal-chat.ts": $api_legal_chat,
+    "./routes/api/upload-pdf.ts": $api_upload_pdf,
     "./routes/greet/[name].tsx": $greet_name_,
     "./routes/index.tsx": $index,
-    "./routes/legal/index.tsx": $legal_index,
+    "./routes/jeff/config.ts": $jeff_config,
+    "./routes/jeff/configloader.ts": $jeff_configloader,
+    "./routes/jeff/index.tsx": $jeff_index,
+    "./routes/jeff/services/scraper/legislationScraper.ts":
+      $jeff_services_scraper_legislationScraper,
+    "./routes/maia/config.ts": $maia_config,
     "./routes/maia/index.tsx": $maia_index,
     "./routes/petunia/index.tsx": $petunia_index,
   },
   islands: {
-    "./islands/AgentCreationCard.tsx": $AgentCreationCard,
     "./islands/AnimatedBackground.tsx": $AnimatedBackground,
-    "./islands/Dashboard/DeploymentManager.tsx": $Dashboard_DeploymentManager,
-    "./islands/Dashboard/ToolSelector.tsx": $Dashboard_ToolSelector,
     "./islands/FeatureHighlight.tsx": $FeatureHighlight,
     "./islands/NavBar.tsx": $NavBar,
     "./islands/agents/Chat.tsx": $agents_Chat,
     "./islands/interfaces/AgentConfig.tsx": $interfaces_AgentConfig,
+    "./islands/interfaces/AuthComponent.tsx": $interfaces_AuthComponent,
     "./islands/interfaces/LegalChat.tsx": $interfaces_LegalChat,
     "./islands/interfaces/MaiaChat.tsx": $interfaces_MaiaChat,
     "./islands/interfaces/PetuniaChat.tsx": $interfaces_PetuniaChat,

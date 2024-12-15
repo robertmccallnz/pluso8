@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="100" fill="#E2E8F0"/>
+  
+  <!-- Suit -->
+  <path d="M60 180C60 140 80 130 100 130C120 130 140 140 140 180" fill="#2D3748"/>
+  
+  <!-- Shirt -->
+  <path d="M85 140H115C115 140 120 160 100 160C80 160 85 140 85 140Z" fill="#FFFFFF"/>
+  
+  <!-- Head -->
+  <circle cx="100" cy="90" r="40" fill="#FBD38D"/>
+  
+  <!-- Hair -->
+  <path d="M60 80C60 80 70 40 100 40C130 40 140 80 140 80C140 80 130 60 100 60C70 60 60 80 60 80Z" fill="#4A5568"/>
+  
+  <!-- Eyes -->
+  <circle cx="85" cy="85" r="5" fill="#2D3748"/>
+  <circle cx="115" cy="85" r="5" fill="#2D3748"/>
+  
+  <!-- Smile -->
+  <path d="M85 100C85 100 90 110 100 110C110 110 115 100 115 100" stroke="#2D3748" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Glasses -->
+  <rect x="75" y="75" width="20" height="20" rx="5" stroke="#4A5568" stroke-width="3" fill="none"/>
+  <rect x="105" y="75" width="20" height="20" rx="5" stroke="#4A5568" stroke-width="3" fill="none"/>
+  <line x1="95" y1="85" x2="105" y2="85" stroke="#4A5568" stroke-width="3"/>
+</svg>

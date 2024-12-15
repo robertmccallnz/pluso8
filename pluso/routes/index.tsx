@@ -1,72 +1,94 @@
-// routes/index.tsx
-import { Head } from "$fresh/runtime.ts";
-import AgentCreationCard from "../islands/AgentCreationCard.tsx";
-import FeatureHighlight from "../islands/FeatureHighlight.tsx";
+import { h } from "preact";
+import NavBar from "../islands/NavBar.tsx";
+import { Button } from "../components/Button.tsx";
+import { COLORS, TYPOGRAPHY } from "../lib/constants/styles.ts";
 
 export default function Home() {
-  const features = [
-    {
-      title: "YAML-Based Configuration",
-      description: "Create and customize agents using simple YAML configuration files",
-      icon: "📄"
-    },
-    {
-      title: "RAG Integration",
-      description: "Powerful Retrieval Augmented Generation for enhanced contextual responses",
-      icon: "🔍"
-    },
-    {
-      title: "V8 Performance",
-      description: "Leverage V8's speed and Tokio's async capabilities for optimal performance",
-      icon: "⚡"
-    },
-    {
-      title: "Agent Interoperability",
-      description: "Enable seamless communication between different chat agents",
-      icon: "🤝"
-    }
-  ];
-
   return (
-    <>
-      <Head>
-        <title>PluSO - Pluralistic System Orchestrator</title>
-      </Head>
-      <div class="min-h-screen bg-gradient-to-b from-[#86efac] to-[#60a5fa]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div class="text-center">
-            <h1 class="text-5xl font-extrabold text-gray-900 sm:text-6xl">
-              PluSO
-            </h1>
-            <p class="mt-3 max-w-md mx-auto text-xl text-gray-600 sm:text-2xl md:mt-5 md:max-w-3xl">
-              Build, Deploy, and Orchestrate Chat Agents with Ease
-            </p>
-            <div class="mt-10 flex justify-center">
-              <button class="rounded-md bg-indigo-600 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600">
-                Create Agent
-              </button>
-            </div>
-          </div>
+    <div 
+      style={{
+        fontFamily: TYPOGRAPHY.fontFamily.base,
+        backgroundColor: COLORS.background.primary
+      }}
+      class="min-h-screen"
+    >
+      <NavBar />
+      <div class="pt-16 flex flex-col items-center justify-center text-center px-4">
+        <h1 
+          style={{
+            color: COLORS.text.primary,
+            fontSize: TYPOGRAPHY.fontSize['3xl']
+          }}
+          class="mb-6 font-bold"
+        >
+          Unleash the Power of Customized AI Agents
+        </h1>
+        
+        <p 
+          style={{
+            color: COLORS.text.secondary,
+            fontSize: TYPOGRAPHY.fontSize.lg
+          }}
+          class="max-w-3xl mb-8 px-4"
+        >
+          Meet Maia, Jeff, and Petunia: Next-generation AI agents powered by V8, Tokio, and Deno. 
+          Imagine AI that doesn't just respond, but truly understands, learns, and works tirelessly for your business.
+        </p>
+        
+        <div class="flex space-x-4">
+          <a href="/maia">
+            <Button
+              variant="primary"
+              size="lg"
+              class="bg-pluso-blue hover:bg-pluso-cyan text-white"
+            >
+              Meet Maia
+            </Button>
+          </a>
+          <a href="/about">
+            <Button
+              variant="secondary"
+              size="lg"
+              class="bg-pluso-cyan hover:bg-pluso-blue text-white"
+            >
+              Learn More
+            </Button>
+          </a>
+        </div>
 
-          <div class="mt-24 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {features.map((feature) => (
-              <FeatureHighlight
-                key={feature.title}
-                title={feature.title}
-                description={feature.description}
-                icon={feature.icon}
-              />
-            ))}
-          </div>
-
-          <div class="mt-24">
-            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">
-              Get Started with PluSO
-            </h2>
-            <AgentCreationCard />
-          </div>
+        <div 
+          class="mt-12 max-w-4xl text-left bg-white p-6 rounded-lg shadow-md"
+          style={{
+            backgroundColor: 'white',
+            color: COLORS.text.secondary
+          }}
+        >
+          <h2 
+            style={{
+              color: COLORS.text.primary,
+              fontSize: TYPOGRAPHY.fontSize['2xl']
+            }}
+            class="mb-4 text-center"
+          >
+            AI Agents: Revolutionizing Business Intelligence
+          </h2>
+          
+          <ul class="space-y-4 list-disc pl-5">
+            <li>
+              <strong>Continuous Learning:</strong> Powered by V8's high-performance JavaScript engine, our AI agents continuously adapt and improve.
+            </li>
+            <li>
+              <strong>Database Integration:</strong> Seamlessly connect to your existing databases, enabling real-time, context-aware responses.
+            </li>
+            <li>
+              <strong>Persistent Memory:</strong> Leveraging Tokio's asynchronous runtime, agents maintain conversational context and learn from interactions.
+            </li>
+            <li>
+              <strong>24/7 Availability:</strong> Built with Deno's secure runtime, these agents work around the clock without fatigue.
+            </li>
+          </ul>
         </div>
       </div>
-    </>
+    </div>
   );
 }

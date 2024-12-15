@@ -1,62 +1,76 @@
 // routes/api/agent-chat.ts
-import { Handler } from "$fresh/server.ts";
+import { Together } from "together-ai";
 
-export const handler: Handler = async (req: Request, _ctx: HandlerContext): Promise<Response> => {
-  if (req.headers.get("upgrade") != "websocket") {
-    return new Response(null, { status: 501 });
-  }
+const together = new Together(Deno.env.get("TOGETHER_API_KEY") || "");
 
-  const { socket, response } = Deno.upgradeWebSocket(req);
-  
-  socket.onopen = () => {
-    console.log("Client connected");
+interface ChatMessage {
+  type: 'message';
+  text: string;
+  language: 'en' | 'mi';
+}
+
+export const handler = (req: Request): Response => {
+  const { socket: ws, response } = Deno.upgradeWebSocket(req);
+
+  ws.onopen = () => {
+    console.log("Chat WebSocket connected");
   };
 
-  socket.onmessage = async (event) => {
+  ws.onmessage = async (event) => {
     try {
-      const data = JSON.parse(event.data);
+      const data: ChatMessage = JSON.parse(event.data);
       
-      // Send typing indicator
-      socket.send(JSON.stringify({
-        type: 'typing',
-        content: 'Maia is thinking...'
-      }));
+      if (data.type === 'message') {
+        // Send typing indicator
+        ws.send(JSON.stringify({ type: 'typing' }));
 
-      // Forward to your existing agent chat handler
-      const agentResponse = await fetch('/api/agents/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: data.text,
-          agent: 'maia',
-          conversationHistory: data.conversationHistory || []
-        })
-      });
+        // Prepare context and prompt
+        const systemPrompt = `You are Maia, a bilingual AI assistant fluent in English and Te Reo Māori.
+          Always be respectful of Māori culture and traditions.
+          If the user's message is in Te Reo, respond in Te Reo.
+          If in English, respond in English, but feel free to use common Te Reo greetings and phrases.`;
 
-      const responseData = await agentResponse.json();
-      
-      socket.send(JSON.stringify({
-        type: 'message',
-        id: crypto.randomUUID(),
-        text: responseData.message,
-        sender: 'agent',
-        language: 'en',
-        timestamp: Date.now()
-      }));
+        const messages = [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: data.text }
+        ];
 
+        // Call Together AI
+        const response = await together.complete({
+          model: "mixtral-8x7b-instruct-v0.1",
+          prompt: JSON.stringify(messages),
+          max_tokens: 1000,
+          temperature: 0.7,
+          top_p: 0.7,
+          top_k: 50,
+          repetition_penalty: 1.1
+        });
+
+        // Send response back through WebSocket
+        const aiMessage = {
+          type: 'message',
+          id: crypto.randomUUID(),
+          text: response.output.content,
+          language: data.language,
+          timestamp: Date.now()
+        };
+
+        ws.send(JSON.stringify(aiMessage));
+      }
     } catch (error) {
       console.error("Error processing message:", error);
-      socket.send(JSON.stringify({
-        type: 'error',
-        content: error instanceof Error ? error.message : "An error occurred"
+      ws.send(JSON.stringify({
+        type: 'message',
+        id: crypto.randomUUID(),
+        text: "I apologize, but I encountered an error processing your message. Please try again.",
+        language: 'en',
+        timestamp: Date.now()
       }));
     }
   };
 
-  socket.onclose = () => {
-    console.log("Client disconnected");
+  ws.onclose = () => {
+    console.log("Chat WebSocket disconnected");
   };
 
   return response;

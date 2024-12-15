@@ -1,21 +1,6 @@
 {
   "imports": {
-    "@/": "./",
-    "@/components/": "./components/",
-    "@/islands/": "./islands/",
-    "@/routes/": "./routes/",
-    "@/lib/": "./lib/",
-    "@/models/": "./models/",
-    "@/types/": "./types/",
-    "@/utils/": "./utils/",
-    "@/core/": "./core/",
-    "$fresh/": "https://deno.land/x/fresh@1.7.3/",
-    "preact": "https://esm.sh/preact@10.22.0",
-    "preact/": "https://esm.sh/preact@10.22.0/",
-     "@preact/signals": "https://esm.sh/*@preact/signals@1.2.2",
-    "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.1",
     "tailwindcss": "npm:tailwindcss@3.4.1",
-    "tailwindcss/": "npm:/tailwindcss@3.4.1/",
-    "$std/": "https://deno.land/std@0.216.0/"
+    "tailwindcss/": "npm:/tailwindcss@3.4.1/"
   }
 }

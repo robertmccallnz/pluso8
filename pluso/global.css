@@ -1,0 +1,47 @@
+@layer components {
+    /* Brand Text Styles */
+    .text-brand-primary {
+      @apply text-pluso-blue font-normal;
+    }
+    
+    .text-brand-secondary {
+      @apply text-pluso-cyan font-bold;
+    }
+    
+    /* Logo Combinations */
+    .logo-prefix {
+      @apply font-mono text-pluso-blue font-normal;
+    }
+    
+    .logo-suffix {
+      @apply font-mono text-pluso-cyan font-bold;
+    }
+    
+    /* Button Styles */
+    .btn-primary {
+      @apply bg-pluso-blue hover:bg-pluso-blue-hover text-white 
+             transition-colors duration-300 rounded-lg
+             font-mono shadow-sm hover:shadow-md;
+    }
+    
+    .btn-secondary {
+      @apply bg-pluso-cyan hover:bg-pluso-cyan-hover text-white 
+             transition-colors duration-300 rounded-lg
+             font-mono shadow-sm hover:shadow-md;
+    }
+    
+    /* Card Styles */
+    .card-base {
+      @apply bg-white rounded-lg shadow-sm p-6 
+             border border-pluso-offwhite-dark;
+    }
+    
+    /* Common Layout Patterns */
+    .container-base {
+      @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    }
+    
+    .section-base {
+      @apply py-12 md:py-16 lg:py-20;
+    }
+  }

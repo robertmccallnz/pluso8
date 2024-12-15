@@ -1,4 +1,3 @@
-// twind.config.ts
 import { Options } from "$fresh/plugins/twind.ts";
 
 export default {
@@ -6,25 +5,24 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-        },
+        pluso: {
+          blue: {
+            DEFAULT: '#1E88E5',
+            hover: '#1976D2',
+            light: '#64B5F6',
+            dark: '#1565C0'
+          },
+          cyan: {
+            DEFAULT: '#00ACC1',
+            hover: '#0097A7',
+            light: '#4DD0E1',
+            dark: '#00838F'
+          }
+        }
       },
-      maxHeight: {
-        'chat': '32rem',
-      },
-      minHeight: {
-        'chat': '24rem',
+      fontFamily: {
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace']
       }
-    },
-  },
+    }
+  }
 } as Options;
