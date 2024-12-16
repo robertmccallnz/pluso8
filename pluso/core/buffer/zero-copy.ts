@@ -1,11 +1,53 @@
 // core/buffer/zero-copy.ts
 
-import { Buffer } from "node:buffer";
+export class ZeroCopyBuffer {
+  private buffer: Uint8Array;
+  private view: DataView;
 
-interface ZeroCopyBuffer {
-  buffer: Buffer;
-  byteOffset: number;
-  length: number;
+  constructor(size: number) {
+    const arrayBuffer = new ArrayBuffer(size);
+    this.buffer = new Uint8Array(arrayBuffer);
+    this.view = new DataView(arrayBuffer);
+  }
+
+  write(data: Uint8Array, offset: number = 0): number {
+    const writeLength = Math.min(data.length, this.buffer.length - offset);
+    this.buffer.set(data.subarray(0, writeLength), offset);
+    return writeLength;
+  }
+
+  read(offset: number = 0, length?: number): Uint8Array {
+    length = length || this.buffer.length - offset;
+    return this.buffer.subarray(offset, offset + length);
+  }
+
+  writeInt32(value: number, offset: number): void {
+    this.view.setInt32(offset, value);
+  }
+
+  readInt32(offset: number): number {
+    return this.view.getInt32(offset);
+  }
+
+  writeFloat64(value: number, offset: number): void {
+    this.view.setFloat64(offset, value);
+  }
+
+  readFloat64(offset: number): number {
+    return this.view.getFloat64(offset);
+  }
+
+  get length(): number {
+    return this.buffer.length;
+  }
+
+  slice(start?: number, end?: number): Uint8Array {
+    return this.buffer.slice(start, end);
+  }
+
+  clear(): void {
+    this.buffer.fill(0);
+  }
 }
 
 export class BufferManager {
@@ -33,16 +75,11 @@ export class BufferManager {
     }
 
     if (this.totalMemory + size <= this.maxMemory) {
-      const buffer = Buffer.allocUnsafe(size);
-      const zeroCopyBuffer: ZeroCopyBuffer = {
-        buffer,
-        byteOffset: 0,
-        length: size,
-      };
+      const buffer = new ZeroCopyBuffer(size);
       
-      this.bufferPool.set(id, zeroCopyBuffer);
+      this.bufferPool.set(id, buffer);
       this.totalMemory += size;
-      return zeroCopyBuffer;
+      return buffer;
     }
 
     return null;
@@ -52,14 +89,7 @@ export class BufferManager {
     const source = this.bufferPool.get(sourceId);
     if (!source) return false;
 
-    // Create a new view of the same underlying buffer
-    const target: ZeroCopyBuffer = {
-      buffer: source.buffer,
-      byteOffset: source.byteOffset,
-      length: source.length,
-    };
-
-    this.bufferPool.set(targetId, target);
+    this.bufferPool.set(targetId, source);
     return true;
   }
 
@@ -93,7 +123,7 @@ export class BufferManager {
   private isBufferInUse(buffer: ZeroCopyBuffer): boolean {
     // Implementation would check if buffer is referenced by any active isolates
     // This is a simplified version
-    return buffer.buffer.length > 0;
+    return buffer.length > 0;
   }
 }
 
@@ -118,7 +148,7 @@ export class V8BufferOptimizer {
     if (!buffer) return false;
 
     // Copy data into the zero-copy buffer
-    new Uint8Array(buffer.buffer).set(new Uint8Array(data));
+    buffer.write(new Uint8Array(data));
 
     // Transfer the buffer between isolates
     const success = this.bufferManager.transferBuffer(sourceId, targetId);

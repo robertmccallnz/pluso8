@@ -1,141 +1,145 @@
-// islands/NavBar.tsx
 import { h } from "preact";
-import { useState, useEffect } from "preact/hooks";
-import { Button } from "../components/Button.tsx";
+import { useState } from "preact/hooks";
+
+interface NavItem {
+  name: string;
+  href: string;
+  icon: string;
+  children?: NavItem[];
+}
 
 export default function NavBar() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [currentPath, setCurrentPath] = useState("/");
 
-  // Navigation links
-  const navLinks = [
-    { href: "/", text: "home_PAGE" },
-    { href: "/maia", text: "mai_A" },
-    { href: "/jeff", text: "jeff_LEGAL" },
-    { href: "/petunia", text: "pet_UNIA" },
-    { href: "/about", text: "abo_UT" },
+  const navigation: NavItem[] = [
+    { name: "Dashboard", href: "/dashboard", icon: "" },
+    { name: "Agents", href: "/agents", icon: "" },
+    { name: "Models", href: "/models", icon: "" },
+    { name: "Metrics", href: "/metrics", icon: "" },
+    { name: "About", href: "/about", icon: "" }
   ];
 
-  // Scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Toggle mobile menu
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
   return (
-    h('nav', {
-      class: `
-        fixed w-full top-0 z-50 
-        transition-all duration-300
-        ${isScrolled ? "bg-white/80 backdrop-blur shadow-sm" : "bg-transparent"}
-      `
-    }, [
-      h('div', { 
-        class: "container mx-auto px-6 py-4 flex items-center" 
-      }, [
-        // Logo
-        h('a', { 
-          href: "/", 
-          class: "font-mono text-xl font-bold hover:scale-105 transition-transform duration-300"
-        }, [
-          h('span', { class: "text-[#1E88E5]" }, "plu_"),
-          h('span', { class: "text-[#00ACC1]" }, "SO")
-        ]),
-        
-        // Desktop Navigation
-        h('div', { 
-          class: "hidden md:flex gap-8 justify-center flex-1",
-          style: "margin-left: auto; margin-right: auto;"
-        },
-          navLinks.map((link) => 
-            h('a', { 
-              key: link.href,
-              href: link.href,
-              class: `
-                relative font-mono text-gray-800
-                hover:text-[#1E88E5]
-                transition-all duration-300
-                after:content-['']
-                after:absolute after:left-0 after:bottom-0
-                after:w-0 after:h-0.5 after:bg-[#1E88E5]
-                after:transition-all after:duration-300
-                hover:after:w-full
-              `
-            }, 
-              link.text.split("_").map((part, index) => 
-                h('span', { 
-                  key: part,
-                  class: index === 0 ? "text-[#1E88E5]" : "text-gray-900"
-                }, [
-                  part,
-                  index === 0 ? "_" : null
-                ])
-              )
-            )
-          )
-        ),
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex">
+            <div class="flex-shrink-0 flex items-center">
+              <a href="/" class="flex items-center space-x-2">
+                <span class="text-blue-600">plu_</span>
+                <span class="text-cyan-600">SO</span>
+              </a>
+            </div>
+            <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+              {navigation.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  class={`border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                    currentPath === item.href ? "border-indigo-500 text-gray-900" : ""
+                  }`}
+                >
+                  {item.name}
+                </a>
+              ))}
+            </div>
+          </div>
+          <div class="flex items-center">
+            <div class="hidden sm:ml-6 sm:flex sm:items-center">
+              <button
+                type="button"
+                class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                <span class="sr-only">View notifications</span>
+                <svg
+                  class="h-6 w-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.593 6 8.925 6 12v3.324c0 .759.273 1.457.76 2.001z"
+                  />
+                </svg>
+              </button>
 
-        // Mobile Menu Toggle
-        h(Button, {
-          variant: "ghost",
-          size: "icon",
-          class: "md:hidden text-[#1E88E5] hover:text-[#00ACC1] transition-colors",
-          onClick: toggleMobileMenu
-        }, [
-          isMobileMenuOpen 
-            ? h('svg', { 
-                class: "w-6 h-6", 
-                viewBox: "0 0 24 24", 
-                fill: "none", 
-                stroke: "currentColor", 
-                strokeWidth: "2"
-              }, [
-                h('path', { d: "M6 18L18 6M6 6l12 12" })
-              ])
-            : h('svg', { 
-                class: "w-6 h-6", 
-                viewBox: "0 0 24 24", 
-                fill: "none", 
-                stroke: "currentColor", 
-                strokeWidth: "2"
-              }, [
-                h('path', { d: "M4 6h16M4 12h16M4 18h16" })
-              ])
-        ]),
-      ]),
+              <div class="ml-3 relative">
+                <button
+                  type="button"
+                  class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  <span class="sr-only">Open user menu</span>
+                  <img
+                    class="h-8 w-8 rounded-full"
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    alt=""
+                  />
+                </button>
+              </div>
+            </div>
+            <div class="-mr-2 flex items-center sm:hidden">
+              <button
+                type="button"
+                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                <span class="sr-only">Open main menu</span>
+                <svg
+                  class={`h-6 w-6 ${isMenuOpen ? "hidden" : "block"}`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+                <svg
+                  class={`h-6 w-6 ${isMenuOpen ? "block" : "hidden"}`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      // Mobile Navigation
-      isMobileMenuOpen && h('div', { 
-        class: "md:hidden bg-white/90 backdrop-blur py-4 px-6 shadow-lg"
-      }, 
-        navLinks.map((link) => 
-          h('a', {
-            key: link.href,
-            href: link.href,
-            class: "block py-2 font-mono hover:text-[#1E88E5] transition-colors",
-            onClick: () => setIsMobileMenuOpen(false)
-          }, 
-            link.text.split("_").map((part, index) => 
-              h('span', { 
-                key: part,
-                class: index === 0 ? "text-[#1E88E5]" : "text-gray-900"
-              }, [
-                part,
-                index === 0 ? "_" : null
-              ])
-            )
-          )
-        )
-      )
-    ])
+      {/* Mobile menu */}
+      <div class={`sm:hidden ${isMenuOpen ? "block" : "hidden"}`}>
+        <div class="pt-2 pb-3 space-y-1">
+          {navigation.map((item) => (
+            <a
+              key={item.name}
+              href={item.href}
+              class={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                currentPath === item.href ? "bg-indigo-50 border-indigo-500 text-indigo-700" : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+              }`}
+            >
+              {item.name}
+            </a>
+          ))}
+        </div>
+      </div>
+    </nav>
   );
 }

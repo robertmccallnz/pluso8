@@ -1,121 +1,73 @@
 // core/buffer/optimizer.ts
 
-import { Buffer } from "node:buffer";
-import { BufferPool } from "./manager.ts";
-
-interface OptimizationResult {
-  success: boolean;
-  buffer?: Buffer;
-  error?: string;
-}
-
 export class BufferOptimizer {
-  private bufferPool: BufferPool;
-  private readonly pageSize: number;
-  private alignmentCache: Map<number, number>;
+  private readonly maxSize: number;
+  private readonly minSize: number;
+  private readonly growthFactor: number;
+  private readonly shrinkFactor: number;
 
-  constructor(poolOptions = {}) {
-    this.bufferPool = new BufferPool(poolOptions);
-    this.pageSize = 4096; // Default page size
-    this.alignmentCache = new Map();
+  constructor(
+    maxSize: number = 1024 * 1024, // 1MB
+    minSize: number = 1024,        // 1KB
+    growthFactor: number = 2,
+    shrinkFactor: number = 0.5
+  ) {
+    this.maxSize = maxSize;
+    this.minSize = minSize;
+    this.growthFactor = growthFactor;
+    this.shrinkFactor = shrinkFactor;
   }
 
-  async optimizeBuffer(data: Buffer | ArrayBuffer): Promise<OptimizationResult> {
-    try {
-      const size = data instanceof Buffer ? data.length : data.byteLength;
-      const alignedSize = this.getAlignedSize(size);
-      
-      const buffer = this.bufferPool.acquire(alignedSize);
-      if (!buffer) {
-        return {
-          success: false,
-          error: "Failed to acquire buffer from pool"
-        };
-      }
-
-      if (data instanceof Buffer) {
-        data.copy(buffer);
-      } else {
-        new Uint8Array(buffer).set(new Uint8Array(data));
-      }
-
-      return {
-        success: true,
-        buffer
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error"
-      };
-    }
-  }
-
-  async optimizeBatch(buffers: (Buffer | ArrayBuffer)[]): Promise<OptimizationResult[]> {
-    return Promise.all(buffers.map(buffer => this.optimizeBuffer(buffer)));
-  }
-
-  releaseOptimizedBuffer(buffer: Buffer): void {
-    this.bufferPool.release(buffer);
-  }
-
-  private getAlignedSize(size: number): number {
-    if (this.alignmentCache.has(size)) {
-      return this.alignmentCache.get(size)!;
+  optimizeSize(currentSize: number, requiredSize: number): number {
+    if (requiredSize <= 0) {
+      return this.minSize;
     }
 
-    // Align to the next page size
-    const aligned = Math.ceil(size / this.pageSize) * this.pageSize;
-    this.alignmentCache.set(size, aligned);
-    return aligned;
-  }
-
-  // V8-specific optimizations
-  async optimizeForV8(data: ArrayBuffer): Promise<OptimizationResult> {
-    // Ensure the buffer is aligned for V8's memory layout
-    const size = data.byteLength;
-    const alignedSize = this.getAlignedSize(size);
-    
-    try {
-      // Request an optimized buffer from the pool
-      const buffer = this.bufferPool.acquire(alignedSize);
-      if (!buffer) {
-        return {
-          success: false,
-          error: "Failed to acquire V8-optimized buffer"
-        };
-      }
-
-      // Copy data with optimized alignment
-      const view = new Uint8Array(data);
-      const optimizedView = new Uint8Array(buffer.buffer, buffer.byteOffset, size);
-      optimizedView.set(view);
-
-      return {
-        success: true,
-        buffer
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error"
-      };
+    if (requiredSize > this.maxSize) {
+      return this.maxSize;
     }
+
+    // If current size is sufficient, keep it
+    if (currentSize >= requiredSize && currentSize <= this.maxSize) {
+      // Check if we should shrink
+      if (currentSize > this.minSize && requiredSize < currentSize * this.shrinkFactor) {
+        return Math.max(
+          this.minSize,
+          Math.ceil(currentSize * this.shrinkFactor)
+        );
+      }
+      return currentSize;
+    }
+
+    // Need to grow
+    let newSize = currentSize;
+    while (newSize < requiredSize) {
+      newSize = Math.ceil(newSize * this.growthFactor);
+    }
+
+    return Math.min(newSize, this.maxSize);
   }
 
-  // Monitor and collect optimization metrics
-  getOptimizationMetrics() {
-    return {
-      poolStats: this.bufferPool.getStats(),
-      alignmentCacheSize: this.alignmentCache.size,
-      pageSize: this.pageSize
-    };
+  shouldReallocate(currentSize: number, requiredSize: number): boolean {
+    if (requiredSize > currentSize) {
+      return true;
+    }
+
+    // Check if buffer is significantly larger than needed
+    return currentSize > this.minSize && 
+           requiredSize < currentSize * this.shrinkFactor;
   }
 
-  // Reset the optimizer state
-  reset(): void {
-    this.bufferPool.reset();
-    this.alignmentCache.clear();
+  getNextPowerOfTwo(size: number): number {
+    let power = 1;
+    while (power < size) {
+      power *= 2;
+    }
+    return Math.min(power, this.maxSize);
+  }
+
+  alignToBlockSize(size: number, blockSize: number = 4096): number {
+    return Math.ceil(size / blockSize) * blockSize;
   }
 }
 

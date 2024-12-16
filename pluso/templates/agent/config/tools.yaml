@@ -1,0 +1,66 @@
+# Tools Configuration Template
+
+# Built-in Tools
+builtin_tools:
+  - name: "web_search"
+    enabled: true
+    config:
+      provider: "duckduckgo"
+      max_results: 5
+  
+  - name: "file_operations"
+    enabled: true
+    config:
+      allowed_extensions: [".txt", ".md", ".json"]
+      max_file_size: "10MB"
+
+  - name: "database"
+    enabled: true
+    config:
+      type: "supabase"
+      max_connections: 10
+
+# Custom Tools
+custom_tools:
+  - name: "my_custom_tool"
+    description: "Description of what the tool does"
+    path: "./src/tools/my_custom_tool.ts"
+    config:
+      param1: "value1"
+      param2: "value2"
+    metrics:
+      - name: "tool_usage"
+        type: "counter"
+      - name: "response_time"
+        type: "histogram"
+
+# Tool Permissions
+permissions:
+  file_system:
+    read: true
+    write: true
+    paths:
+      - "./data"
+      - "./temp"
+  
+  network:
+    enabled: true
+    allowed_domains:
+      - "api.example.com"
+      - "*.pluso.ai"
+
+# Rate Limiting
+rate_limits:
+  - tool: "web_search"
+    requests_per_minute: 60
+  - tool: "database"
+    requests_per_minute: 100
+
+# Error Handling
+error_handling:
+  retry:
+    max_attempts: 3
+    backoff: "exponential"
+  fallback:
+    enabled: true
+    default_response: "Tool temporarily unavailable"

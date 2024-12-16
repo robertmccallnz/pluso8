@@ -1,9 +1,14 @@
 import { defineConfig } from "$fresh/server.ts";
-import twindPlugin from "$fresh/plugins/twind.ts";
-import twindConfig from "./twind.config.ts";
+import tailwind from "$fresh/plugins/tailwind.ts";
+
+// Load environment variables
+await import("$std/dotenv/load.ts");
 
 export default defineConfig({
   plugins: [
-    twindPlugin(twindConfig),
-  ]
+    tailwind({
+      cssPath: "./static/styles.css",
+      configPath: "./tailwind.config.ts",
+    }),
+  ],
 });

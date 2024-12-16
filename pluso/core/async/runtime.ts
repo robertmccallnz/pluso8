@@ -1,5 +1,5 @@
 // core/async/runtime.ts
-import { EventEmitter } from "node:events";
+import { EventEmitter } from "https://deno.land/x/event@2.0.1/mod.ts";
 
 interface TaskOptions {
   priority?: 'high' | 'normal' | 'low';
@@ -13,15 +13,14 @@ interface Task<T> {
   options: TaskOptions;
 }
 
-class AsyncRuntime {
+class AsyncRuntime extends EventEmitter {
   private static instance: AsyncRuntime;
-  private eventEmitter: EventEmitter;
   private taskQueue: Map<string, Task<any>>;
   private concurrencyLimit: number;
   private activeTaskCount: number;
 
   private constructor() {
-    this.eventEmitter = new EventEmitter();
+    super();
     this.taskQueue = new Map();
     this.concurrencyLimit = 100; // Configurable
     this.activeTaskCount = 0;
@@ -80,13 +79,13 @@ class AsyncRuntime {
       throw error;
     } finally {
       this.activeTaskCount--;
-      this.eventEmitter.emit('taskCompleted');
+      this.emit('taskCompleted');
     }
   }
 
   private waitForAvailableSlot(): Promise<void> {
     return new Promise(resolve => {
-      this.eventEmitter.once('taskCompleted', resolve);
+      this.once('taskCompleted', resolve);
     });
   }
 

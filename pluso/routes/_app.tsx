@@ -1,16 +1,25 @@
-import { type PageProps } from "$fresh/server.ts";
-export default function App({ Component }: PageProps) {
+import { AppProps } from "$fresh/server.ts";
+import { Head } from "$fresh/runtime.ts";
+
+export default function App({ Component }: AppProps) {
   return (
-    <html>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>pluso</title>
+    <>
+      <Head>
+        <title>Pluso - AI Agent Platform</title>
+        <meta name="description" content="Create and manage AI agents" />
         <link rel="stylesheet" href="/styles.css" />
-      </head>
-      <body>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+          rel="stylesheet"
+        />
+      </Head>
+      <div class="min-h-screen bg-gray-50">
         <Component />
-      </body>
-    </html>
+      </div>
+    </>
   );
 }

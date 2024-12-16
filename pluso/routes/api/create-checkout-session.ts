@@ -16,6 +16,7 @@ export async function handler(req: Request): Promise<Response> {
             currency: "usd",
             product_data: {
               name: "PluSO Subscription",
+              description: "Monthly subscription to PluSO AI Agent Platform",
             },
             unit_amount: 2000, // $20.00
           },
@@ -23,16 +24,17 @@ export async function handler(req: Request): Promise<Response> {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/cancel`,
+      success_url: `${req.headers.get("origin")}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get("origin")}/pricing`,
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
+    console.error("Error creating checkout session:", error);
+    return new Response(JSON.stringify({ error: { message: error.message } }), {
+      status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }

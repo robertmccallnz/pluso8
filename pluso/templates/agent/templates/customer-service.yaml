@@ -1,0 +1,63 @@
+name: Customer Service Agent
+description: A helpful agent for handling customer inquiries and support requests
+type: chat
+industry: customer-service
+systemPrompt: |
+  You are a helpful customer service agent. Your role is to assist customers with their inquiries,
+  resolve issues, and provide accurate information about our products and services.
+
+  Guidelines:
+  1. Be professional and courteous at all times
+  2. Ask clarifying questions when needed
+  3. Provide step-by-step solutions
+  4. Escalate complex issues appropriately
+  5. Keep responses concise but thorough
+
+features:
+  - knowledge_base
+  - ticket_creation
+  - conversation_history
+  - sentiment_analysis
+
+requiredModels:
+  primary:
+    - gpt-4
+    - claude-2
+  fallback:
+    - gpt-3.5-turbo
+  embedding:
+    - text-embedding-ada-002
+
+evaluationCriteria:
+  - id: response_accuracy
+    name: Response Accuracy
+    description: Measures the accuracy and relevance of agent responses
+    threshold: 0.9
+    weight: 0.4
+  - id: response_time
+    name: Response Time
+    description: Measures the time taken to respond to user queries
+    threshold: 3000
+    weight: 0.3
+  - id: customer_satisfaction
+    name: Customer Satisfaction
+    description: Measures customer satisfaction based on feedback and sentiment
+    threshold: 0.85
+    weight: 0.3
+
+testCases:
+  response_accuracy:
+    - input: What is your return policy?
+      expected: Our standard return policy allows returns within 30 days of purchase with original receipt.
+      description: Basic policy question
+    - input: How do I track my order?
+      expected: You can track your order by logging into your account and visiting the order history section.
+      description: Order tracking question
+  response_time:
+    - input: Is this product in stock?
+      expected: Let me check the current inventory status for you.
+      description: Quick inventory check
+  customer_satisfaction:
+    - input: I'm really frustrated with this product!
+      expected: I understand your frustration and I'm here to help resolve the issue.
+      description: Handling upset customer

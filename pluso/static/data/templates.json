@@ -1,0 +1,60 @@
+{
+  "templates": [
+    {
+      "id": "cs-basic",
+      "name": "Basic Customer Service",
+      "description": "A simple customer service agent for handling basic inquiries",
+      "type": "customer-service",
+      "industry": "customer-service",
+      "systemPrompt": "You are a helpful customer service representative...",
+      "features": ["basic-responses", "ticket-creation"],
+      "requiredModels": {
+        "primary": ["gpt-3.5-turbo"],
+        "fallback": ["gpt-3.5-turbo-instruct"],
+        "embedding": ["text-embedding-ada-002"]
+      },
+      "evaluationCriteria": [
+        {
+          "id": "response-accuracy",
+          "name": "Response Accuracy",
+          "description": "Measures the accuracy of agent responses",
+          "weight": 0.4
+        },
+        {
+          "id": "response-time",
+          "name": "Response Time",
+          "description": "Measures the speed of agent responses",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "sales-basic",
+      "name": "Basic Sales Agent",
+      "description": "A simple sales agent for lead qualification",
+      "type": "sales",
+      "industry": "sales",
+      "systemPrompt": "You are a helpful sales representative...",
+      "features": ["lead-qualification", "basic-responses"],
+      "requiredModels": {
+        "primary": ["gpt-4"],
+        "fallback": ["gpt-3.5-turbo"],
+        "embedding": ["text-embedding-ada-002"]
+      },
+      "evaluationCriteria": [
+        {
+          "id": "lead-quality",
+          "name": "Lead Quality",
+          "description": "Measures the quality of qualified leads",
+          "weight": 0.5
+        },
+        {
+          "id": "conversion-rate",
+          "name": "Conversion Rate",
+          "description": "Measures the conversion rate of leads",
+          "weight": 0.5
+        }
+      ]
+    }
+  ]
+}

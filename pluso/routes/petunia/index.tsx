@@ -1,131 +1,69 @@
-import { Handlers, PageProps } from "$fresh/server.ts";
 import { Head } from "$fresh/runtime.ts";
+import { COLORS } from "../../lib/constants/styles.ts";
 import PetuniaChat from "../../islands/interfaces/PetuniaChat.tsx";
 import NavBar from "../../islands/NavBar.tsx";
+import SEO from "../../components/SEO.tsx";
+import AgentMetricsPanel from "../../islands/components/AgentMetricsPanel.tsx";
 
-interface ExpertiseArea {
-  title: string;
-  description: string;
-  icon: string;
+function BrandText({ children }: { children: string }) {
+  const [prefix, suffix] = children.split('_');
+  return (
+    <>
+      <span style={{ color: COLORS.brand.blue }} class="font-normal">{prefix}_</span>
+      <span style={{ color: COLORS.brand.green }} class="font-bold">{suffix}</span>
+    </>
+  );
 }
 
-export const handler: Handlers = {
-  async POST(req, ctx) {
-    const form = await req.formData();
-    const message = form.get("message")?.toString() || "";
-
-    const response = {
-      messages: [
-        { role: "user", content: message },
-        { role: "assistant", content: "Kia ora! I'll help you with that..." }
-      ]
-    };
-
-    return new Response(JSON.stringify(response));
-  }
-};
-
-export default function PetuniaPage() {
-  const expertiseAreas: ExpertiseArea[] = [
-    {
-      title: "Native Plants",
-      description: "Expert knowledge of New Zealand's indigenous flora",
-      icon: "🌿"
-    },
-    {
-      title: "Sustainable Gardening",
-      description: "Eco-friendly gardening practices and techniques",
-      icon: "🌱"
-    },
-    {
-      title: "Conservation",
-      description: "Ecological preservation and native species protection",
-      icon: "🍃"
-    }
-  ];
-
+export default function Petunia() {
   return (
     <>
       <Head>
-        <title>Petunia - PluSO Nature Guide</title>
-        <meta name="description" content="Expert in New Zealand flora and gardening" />
+        <title>pet_UNIA | PluSO AI Assistant</title>
+        <link rel="stylesheet" href="/styles.css" />
+        <SEO 
+          title="pet_UNIA - Garden & Ecology Assistant | PluSO"
+          description="Meet pet_UNIA, your garden and ecology companion. Specialized in New Zealand native plants, sustainable gardening, and traditional Māori plant knowledge."
+          keywords={[
+            "NZ native plants",
+            "sustainable gardening",
+            "ecological restoration",
+            "garden planning",
+            "rongoā Māori",
+            "permaculture",
+            "wildlife gardening",
+            "pet_UNIA assistant"
+          ]}
+        />
       </Head>
-      <div class="min-h-screen bg-[#F5F5F5]">
-        <NavBar />
-        <main class="max-w-4xl mx-auto pt-24 px-4">
-          {/* Header Section */}
-          <div class="text-center mb-16">
-            <div class="w-32 h-32 mx-auto mb-8 rounded-full border-4 border-[#333333] flex items-center justify-center">
-              <span class="text-5xl">🌺</span>
-            </div>
 
-            <h1 class="text-6xl font-bold text-[#333333] mb-4">Petunia</h1>
-            <div class="space-y-4">
-              <p class="text-xl text-[#333333]">
-                <span class="font-semibold">Kia ora!</span> Welcome to your personal garden guide
-              </p>
-              <p class="text-[#333333]/70 max-w-2xl mx-auto">
-                Expert in New Zealand native plants, sustainable gardening practices, and ecological conservation. 
-                Fluent in both te reo Māori and English.
-              </p>
-            </div>
-          </div>
+      <div class="min-h-screen bg-gradient-to-b from-white to-gray-50">
+        <div class="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+          <NavBar />
+        </div>
 
-          {/* Expertise Areas */}
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            {expertiseAreas.map((area) => (
-              <div class="bg-[#333333]/10 rounded-lg p-6 text-center">
-                <div class="text-4xl mb-4">{area.icon}</div>
-                <h3 class="text-xl font-semibold text-[#333333] mb-2">{area.title}</h3>
-                <p class="text-[#333333]/70">{area.description}</p>
+        <main class="container mx-auto px-4 py-8 mt-20">
+          <div class="max-w-7xl mx-auto">
+            <h1 class="text-4xl font-bold mb-4">
+              <BrandText>pet_UNIA</BrandText>
+            </h1>
+            
+            <p class="text-lg text-gray-600 mb-8">
+              Your garden and ecology companion, specializing in New Zealand native plants and sustainable practices.
+            </p>
+
+            <div class="space-y-6">
+              <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-2xl font-semibold mb-4">Agent Metrics</h2>
+                <AgentMetricsPanel agentId="petunia" />
               </div>
-            ))}
-          </div>
 
-          {/* Services Section */}
-          <div class="bg-[#333333]/10 rounded-lg p-6 mb-16">
-            <h2 class="text-2xl font-semibold text-[#333333] mb-4">Services</h2>
-            <ul class="space-y-2">
-              <li class="flex items-center text-[#333333]">
-                <span class="mr-2">✓</span>
-                Plant identification and care advice
-              </li>
-              <li class="flex items-center text-[#333333]">
-                <span class="mr-2">✓</span>
-                Garden planning and maintenance tips
-              </li>
-              <li class="flex items-center text-[#333333]">
-                <span class="mr-2">✓</span>
-                Native species conservation guidance
-              </li>
-              <li class="flex items-center text-[#333333]">
-                <span class="mr-2">✓</span>
-                Sustainable gardening practices
-              </li>
-            </ul>
-          </div>
-
-          {/* Chat Interface */}
-          <div class="max-w-3xl mx-auto mb-16">
-            <PetuniaChat 
-              endpoint="/petunia"
-              agentName="PETUNIA"
-              allowFiles={false}
-            />
-          </div>
-
-          <footer class="text-center text-[#333333]/60 text-sm py-8">
-            <div>
-              &copy; {new Date().getFullYear()} <span class="font-mono">plu_SO</span>
+              <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-2xl font-semibold mb-4">Chat Interface</h2>
+                <PetuniaChat />
+              </div>
             </div>
-            <div class="flex justify-center space-x-4 mt-2">
-              <span>Tel: 022 400 4387</span>
-              <span>|</span>
-              <a href="mailto:hello@pluso.co.nz" class="hover:text-[#333333]">
-                hello@pluso.co.nz
-              </a>
-            </div>
-          </footer>
+          </div>
         </main>
       </div>
     </>

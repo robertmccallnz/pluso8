@@ -1,0 +1,84 @@
+# Performance Alerts Configuration
+
+alerts:
+  - name: "high_latency"
+    description: "Agent response time is too high"
+    metric:
+      name: "response_time_ms"
+      query: "SELECT avg(metrics->>'latency') FROM agent_metrics WHERE agent_id = $agent_id"
+      window: "5m"
+    conditions:
+      - type: "threshold"
+        operator: ">"
+        value: 1000  # ms
+        duration: "5m"
+    severity: "warning"
+    channels:
+      - "slack"
+      - "email"
+
+  - name: "high_error_rate"
+    description: "Agent error rate exceeds threshold"
+    metric:
+      name: "error_rate"
+      query: "SELECT count(*) FROM agent_error_logs WHERE agent_id = $agent_id"
+      window: "15m"
+    conditions:
+      - type: "threshold"
+        operator: ">"
+        value: 5  # errors
+        duration: "15m"
+    severity: "critical"
+    channels:
+      - "slack"
+      - "email"
+      - "pagerduty"
+
+  - name: "memory_usage"
+    description: "Agent memory usage is too high"
+    metric:
+      name: "memory_usage"
+      query: "SELECT metrics->>'memoryUsage' FROM agent_metrics WHERE agent_id = $agent_id"
+      window: "5m"
+    conditions:
+      - type: "threshold"
+        operator: ">"
+        value: 800000000  # bytes (800MB)
+        duration: "5m"
+    severity: "warning"
+    channels:
+      - "slack"
+
+  - name: "low_success_rate"
+    description: "Agent success rate is below threshold"
+    metric:
+      name: "success_rate"
+      query: "SELECT metrics->>'successRate' FROM agent_metrics WHERE agent_id = $agent_id"
+      window: "1h"
+    conditions:
+      - type: "threshold"
+        operator: "<"
+        value: 95  # percentage
+        duration: "1h"
+    severity: "warning"
+    channels:
+      - "slack"
+      - "email"
+
+notification_channels:
+  slack:
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    default_channel: "#agent-alerts"
+    
+  email:
+    from: "hello@pluso.co.nz"
+    to: ["hello@pluso.co.nz"]
+    smtp:
+      host: "${SMTP_HOST}"
+      port: 587
+      username: "${SMTP_USERNAME}"
+      password: "${SMTP_PASSWORD}"
+      
+  pagerduty:
+    integration_key: "${PAGERDUTY_KEY}"
+    service_id: "${PAGERDUTY_SERVICE_ID}"

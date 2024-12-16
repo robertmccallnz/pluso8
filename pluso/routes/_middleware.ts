@@ -18,8 +18,8 @@ export async function handler(
 
   if (upgrade?.toLowerCase() === "websocket") {
     console.log(`🎯 [Middleware] WebSocket request to ${url.pathname}`);
-    // Allow WebSocket upgrade for chat endpoint
-    if (url.pathname === "/api/agents/ws-chat") {
+    // Allow WebSocket upgrade for chat endpoints
+    if (url.pathname === "/api/agents/ws-chat" || url.pathname === "/api/maia/ws-chat") {
       console.log(`✅ [Middleware] Allowing WebSocket upgrade`);
       return await ctx.next();
     }

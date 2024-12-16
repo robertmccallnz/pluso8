@@ -1,6 +1,7 @@
-import { useSignal } from "@preact/signals";
-import { useEffect } from "preact/hooks";
+import { IS_BROWSER } from "$fresh/runtime.ts";
+import { useEffect, useState } from "preact/hooks";
 import tabScraper from "../../tools/scrapers/tab/mod.ts";
+import ChatMessage from "../components/ChatMessage.tsx";
 
 interface Message {
   text: string;
@@ -56,87 +57,91 @@ interface Legislation {
 }
 
 export default function LegalChat() {
-  const isConnected = useSignal(false);
-  const messages = useSignal<Message[]>([]);
-  const inputText = useSignal('');
-  const wsRef = useSignal<WebSocket | null>(null);
-  const fileInputRef = useSignal<HTMLInputElement | null>(null);
-  const tabEvents = useSignal<TabEvent[]>([]);
-  const isLoadingEvents = useSignal(false);
-  const legislation = useSignal<any>(null);
-  const isLoadingLegislation = useSignal(false);
-  const legislationError = useSignal<string | null>(null);
+  if (!IS_BROWSER) {
+    return <div>Loading chat...</div>;
+  }
+
+  const [isConnected, setIsConnected] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputText, setInputText] = useState('');
+  const [ws, setWs] = useState<WebSocket | null>(null);
+  const [fileInput, setFileInput] = useState<HTMLInputElement | null>(null);
+  const [tabEvents, setTabEvents] = useState<TabEvent[]>([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
+  const [legislation, setLegislation] = useState<any>(null);
+  const [isLoadingLegislation, setIsLoadingLegislation] = useState(false);
+  const [legislationError, setLegislationError] = useState<string | null>(null);
 
   useEffect(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/api/agents/ws-chat`;
     console.log('Connecting to WebSocket at:', wsUrl);
 
-    const ws = new WebSocket(wsUrl);
-    wsRef.value = ws;
+    const wsInstance = new WebSocket(wsUrl);
+    setWs(wsInstance);
 
-    ws.addEventListener('open', () => {
+    wsInstance.addEventListener('open', () => {
       console.log('WebSocket connected');
-      isConnected.value = true;
+      setIsConnected(true);
     });
 
-    ws.addEventListener('message', (event) => {
+    wsInstance.addEventListener('message', (event) => {
       console.log('Message received:', event.data);
-      messages.value = [...messages.value, {
+      setMessages(prev => [...prev, {
         text: event.data,
         type: event.data === 'Thinking...' ? 'system' : 'assistant',
         timestamp: Date.now()
-      }];
+      }]);
     });
 
-    ws.addEventListener('error', (error) => {
+    wsInstance.addEventListener('error', (error) => {
       console.error('WebSocket error:', error);
-      isConnected.value = false;
+      setIsConnected(false);
     });
 
-    ws.addEventListener('close', (event) => {
+    wsInstance.addEventListener('close', (event) => {
       console.log('WebSocket closed:', event.code, event.reason);
-      isConnected.value = false;
-      wsRef.value = null;
+      setIsConnected(false);
+      setWs(null);
     });
 
     return () => {
       console.log('Cleaning up WebSocket connection');
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.close();
+      if (wsInstance.readyState === WebSocket.OPEN) {
+        wsInstance.close();
       }
-      wsRef.value = null;
-      isConnected.value = false;
+      setWs(null);
+      setIsConnected(false);
     };
   }, []);
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
-    if (!wsRef.value || wsRef.value.readyState !== WebSocket.OPEN) {
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
       console.log('WebSocket not connected, cannot send message');
       return;
     }
 
-    const text = inputText.value.trim();
+    const text = inputText.trim();
     if (!text) {
       console.log('Empty message, not sending');
       return;
     }
 
     console.log('Sending message:', text);
-    wsRef.value.send(text);
-    messages.value = [...messages.value, {
+    ws.send(text);
+    setMessages(prev => [...prev, {
       text: text,
       type: 'user',
       timestamp: Date.now()
-    }];
-    inputText.value = '';
+    }]);
+    setInputText('');
   };
 
   const handleFileUpload = async (e: Event) => {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
-    if (!file || !wsRef.value) return;
+    if (!file || !ws) return;
 
     const formData = new FormData();
     formData.append('file', file);
@@ -150,29 +155,29 @@ export default function LegalChat() {
       if (!response.ok) throw new Error('Upload failed');
 
       const result = await response.json();
-      wsRef.value.send(JSON.stringify({
+      ws.send(JSON.stringify({
         type: 'pdf_upload',
         filename: file.name,
         content: result.text
       }));
 
-      messages.value = [...messages.value, {
+      setMessages(prev => [...prev, {
         text: `📄 Uploaded: ${file.name}`,
         type: 'system',
         timestamp: Date.now()
-      }];
+      }]);
     } catch (error) {
       console.error('Upload error:', error);
-      messages.value = [...messages.value, {
+      setMessages(prev => [...prev, {
         text: '❌ Failed to upload PDF',
         type: 'system',
         timestamp: Date.now()
-      }];
+      }]);
     }
   };
 
   const exportChat = () => {
-    const chatContent = messages.value
+    const chatContent = messages
       .filter(m => m.type !== 'system')
       .map(m => `${m.type === 'user' ? 'You' : 'Jeff Legal'}: ${m.text}`)
       .join('\n\n');
@@ -191,33 +196,33 @@ export default function LegalChat() {
   const fetchTabEvents = async (type: 'racing' | 'sports' = 'racing') => {
     try {
       console.log('Starting to fetch', type, 'events');
-      isLoadingEvents.value = true;
+      setIsLoadingEvents(true);
       const events = await tabScraper.getRaceEvents(type);
       console.log('Received events:', events);
-      tabEvents.value = events;
+      setTabEvents(events);
       
       if (events.length === 0) {
-        messages.value = [...messages.value, {
+        setMessages(prev => [...prev, {
           text: `No ${type} events found.`,
           type: 'system',
           timestamp: Date.now()
-        }];
+        }]);
       } else {
-        messages.value = [...messages.value, {
+        setMessages(prev => [...prev, {
           text: `Found ${events.length} ${type} events.`,
           type: 'system',
           timestamp: Date.now()
-        }];
+        }]);
       }
     } catch (error) {
       console.error('Error fetching TAB events:', error);
-      messages.value = [...messages.value, {
+      setMessages(prev => [...prev, {
         text: 'Failed to fetch TAB events. Please try again later.',
         type: 'system',
         timestamp: Date.now()
-      }];
+      }]);
     } finally {
-      isLoadingEvents.value = false;
+      setIsLoadingEvents(false);
     }
   };
 
@@ -228,7 +233,7 @@ export default function LegalChat() {
     window.open(legislationUrl, '_blank');
     
     // Add legislation content to chat for Jeff's context
-    messages.value = [...messages.value, {
+    setMessages(prev => [...prev, {
       text: `Māori Land Court Rules 2011
 
 Key sections:
@@ -262,7 +267,7 @@ tikanga Māori means Māori customary values and practices`,
       text: "I've opened the Māori Land Court Rules 2011 in a new tab for you to reference. I also have the key sections in my context now, so I can help explain any part of these rules. What would you like to know about?",
       type: 'assistant',
       timestamp: Date.now()
-    }];
+    }]);
   };
 
   return (
@@ -302,7 +307,7 @@ tikanga Māori means Māori customary values and practices`,
 
       <div class="mb-4 flex justify-between items-center">
         <div class="font-bold">
-          {isConnected.value ? (
+          {isConnected ? (
             <span class="text-green-600">Connected 🟢</span>
           ) : (
             <span class="text-red-600">Disconnected 🔴</span>
@@ -314,18 +319,18 @@ tikanga Māori means Māori customary values and practices`,
             accept=".pdf"
             onChange={handleFileUpload}
             class="hidden"
-            ref={(el) => fileInputRef.value = el}
+            ref={(el) => setFileInput(el)}
           />
           <button
-            onClick={() => fileInputRef.value?.click()}
-            disabled={!isConnected.value}
+            onClick={() => fileInput?.click()}
+            disabled={!isConnected}
             class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
             Upload PDF 📄
           </button>
           <button
             onClick={exportChat}
-            disabled={messages.value.length === 0}
+            disabled={messages.length === 0}
             class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50 transition-colors"
           >
             Export Chat 💾
@@ -333,16 +338,16 @@ tikanga Māori means Māori customary values and practices`,
           <button
             onClick={() => fetchTabEvents('racing')}
             class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50 transition-colors"
-            disabled={isLoadingEvents.value}
+            disabled={isLoadingEvents}
           >
-            {isLoadingEvents.value ? 'Loading...' : 'Get Racing Events 🏇'}
+            {isLoadingEvents ? 'Loading...' : 'Get Racing Events 🏇'}
           </button>
           <button
             onClick={() => fetchTabEvents('sports')}
             class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50 transition-colors"
-            disabled={isLoadingEvents.value}
+            disabled={isLoadingEvents}
           >
-            {isLoadingEvents.value ? 'Loading...' : 'Get Sports Events ⚽'}
+            {isLoadingEvents ? 'Loading...' : 'Get Sports Events ⚽'}
           </button>
           <button
             onClick={viewLegislation}
@@ -353,11 +358,11 @@ tikanga Māori means Māori customary values and practices`,
         </div>
       </div>
 
-      {tabEvents.value.length > 0 && (
+      {tabEvents.length > 0 && (
         <div class="mb-4 bg-white rounded-lg shadow-md p-4">
-          <h3 class="text-lg font-semibold mb-2">Latest {tabEvents.value[0].type === 'racing' ? 'Racing' : 'Sports'} Events</h3>
+          <h3 class="text-lg font-semibold mb-2">Latest {tabEvents[0].type === 'racing' ? 'Racing' : 'Sports'} Events</h3>
           <div class="grid grid-cols-1 gap-4">
-            {tabEvents.value.map(event => (
+            {tabEvents.map(event => (
               <div key={event.id} class="p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                 <div class="flex justify-between items-start">
                   <div>
@@ -456,58 +461,41 @@ tikanga Māori means Māori customary values and practices`,
         </div>
       )}
 
-      {legislationError.value && (
+      {legislationError && (
         <div class="mt-4 p-4 bg-red-50 text-red-700 rounded-lg">
-          {legislationError.value}
+          {legislationError}
         </div>
       )}
 
       <div class="mb-4 h-[400px] overflow-y-auto border rounded-lg p-4 bg-gray-50 shadow-inner">
-        {messages.value.length === 0 ? (
+        {messages.length === 0 ? (
           <div class="text-gray-500 text-center">Start chatting with Jeff about property law or upload a document for analysis</div>
         ) : (
-          messages.value.map((msg, i) => (
-            <div
-              key={i}
-              class={`mb-3 ${
-                msg.type === 'user'
-                  ? 'text-right'
-                  : msg.type === 'system'
-                  ? 'text-center'
-                  : 'text-left'
-              }`}
-            >
-              <div
-                class={`inline-block rounded-lg px-4 py-2 max-w-[80%] ${
-                  msg.type === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : msg.type === 'system'
-                    ? 'bg-gray-200 text-gray-600 text-sm'
-                    : 'bg-white shadow-md'
-                }`}
-              >
-                {msg.text}
-              </div>
-              <div class="text-xs text-gray-500 mt-1">
-                {new Date(msg.timestamp).toLocaleTimeString()}
-              </div>
-            </div>
-          ))
+          <div class="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.map((msg) => (
+              <ChatMessage
+                key={msg.timestamp}
+                content={msg.text}
+                type={msg.type}
+                timestamp={msg.timestamp}
+              />
+            ))}
+          </div>
         )}
       </div>
 
       <form onSubmit={handleSubmit} class="flex gap-2">
         <input
           type="text"
-          value={inputText.value}
-          onInput={(e) => inputText.value = (e.target as HTMLInputElement).value}
+          value={inputText}
+          onInput={(e) => setInputText((e.target as HTMLInputElement).value)}
           placeholder="Ask Jeff about property law..."
           class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          disabled={!isConnected.value}
+          disabled={!isConnected}
         />
         <button
           type="submit"
-          disabled={!isConnected.value}
+          disabled={!isConnected}
           class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
         >
           Send

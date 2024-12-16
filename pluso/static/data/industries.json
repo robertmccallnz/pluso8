@@ -1,0 +1,25 @@
+{
+  "industries": [
+    {
+      "id": "customer-service",
+      "name": "Customer Service",
+      "description": "AI agents for customer support and service automation",
+      "icon": "support_agent",
+      "templates": ["cs-basic", "cs-advanced"]
+    },
+    {
+      "id": "sales",
+      "name": "Sales",
+      "description": "AI agents for lead qualification and sales automation",
+      "icon": "point_of_sale",
+      "templates": ["sales-basic", "sales-advanced"]
+    },
+    {
+      "id": "marketing",
+      "name": "Marketing",
+      "description": "AI agents for content creation and marketing automation",
+      "icon": "campaign",
+      "templates": ["marketing-basic", "marketing-advanced"]
+    }
+  ]
+}
