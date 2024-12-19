@@ -1,0 +1,42 @@
+=== Daily Tests Started at 2024-12-17 15:03:41 ===
+=== Test Results ===
+Filepath Tests: FAILED
+API Tests: FAILED
+WebSocket Tests: FAILED
+=== Daily Tests Completed at 2024-12-17 15:03:42 ===
+=== Daily Tests Started at 2024-12-18 00:00:01 ===
+Running filepath-tests...
+./scripts/daily-tests.sh: line 15: deno: command not found
+❌ filepath-tests failed
+Running api-tests...
+./scripts/daily-tests.sh: line 15: deno: command not found
+❌ api-tests failed
+Running websocket-tests...
+./scripts/daily-tests.sh: line 15: deno: command not found
+❌ websocket-tests failed
+=== Test Results ===
+Filepath Tests: FAILED
+API Tests: FAILED
+WebSocket Tests: FAILED
+=== Daily Tests Completed at 2024-12-18 00:00:01 ===
+🚨 filepath-tests failed. Check logs at: logs/filepath-tests.log
+🚨 api-tests failed. Check logs at: logs/api-tests.log
+🚨 websocket-tests failed. Check logs at: logs/websocket-tests.log
+=== Daily Tests Started at 2024-12-19 00:00:00 ===
+Running filepath-tests...
+./scripts/daily-tests.sh: line 15: deno: command not found
+❌ filepath-tests failed
+Running api-tests...
+./scripts/daily-tests.sh: line 15: deno: command not found
+❌ api-tests failed
+Running websocket-tests...
+./scripts/daily-tests.sh: line 15: deno: command not found
+❌ websocket-tests failed
+=== Test Results ===
+Filepath Tests: FAILED
+API Tests: FAILED
+WebSocket Tests: FAILED
+=== Daily Tests Completed at 2024-12-19 00:00:00 ===
+🚨 filepath-tests failed. Check logs at: logs/filepath-tests.log
+🚨 api-tests failed. Check logs at: logs/api-tests.log
+🚨 websocket-tests failed. Check logs at: logs/websocket-tests.log

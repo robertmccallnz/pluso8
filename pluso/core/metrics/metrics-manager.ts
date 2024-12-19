@@ -1,6 +1,6 @@
 // core/metrics/metrics-manager.ts
 
-import supabase from "../database/supabase/client.ts";
+import supabase from "../database/client.ts";
 import { AgentConfig } from "../types.ts";
 import { 
   AgentMetrics,

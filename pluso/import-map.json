@@ -1,6 +1,0 @@
-{
-  "imports": {
-    "tailwindcss": "npm:tailwindcss@3.4.1",
-    "tailwindcss/": "npm:/tailwindcss@3.4.1/"
-  }
-}

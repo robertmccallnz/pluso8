@@ -1,0 +1,2 @@
+# Run filepath tests daily at midnight
+0 0 * * * cd /Users/robertmccall/pluso8/pluso && ./scripts/daily-tests.sh >> /Users/robertmccall/pluso8/pluso/logs/daily-tests.log 2>&1

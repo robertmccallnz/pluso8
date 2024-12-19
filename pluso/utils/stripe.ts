@@ -1,5 +1,5 @@
 // utils/stripe.ts
-import Stripe from "stripe";
+import Stripe from "https://esm.sh/stripe@14.10.0?dts";
 
 const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY");
 if (!STRIPE_SECRET_KEY) {

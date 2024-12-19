@@ -1,5 +1,5 @@
 // core/deployment/config-generator.ts
-import type { AgentConfig } from "../../types/agent.ts";
+import type { AgentConfig } from "../../agents/types/agent.ts";
 import { KVStorageManager } from "../storage/manager.ts";
 
 interface DeploymentConfig {

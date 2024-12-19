@@ -122,6 +122,7 @@ export interface MetricsRegistry {
 export interface AgentMetrics {
   id: string;
   name: string;
+  recorded_at: string;
   metrics: {
     conversations: {
       total: number;

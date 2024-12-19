@@ -1,92 +1,59 @@
-/ core/transpiler/pipeline.ts
-import { transform } from 'esbuild';
-import * as swc from '@swc/core';
+// core/transpiler/pipeline.ts
+import { transform } from "https://deno.land/x/swc@0.2.1/mod.ts";
+import type { Config } from "https://deno.land/x/swc@0.2.1/mod.ts";
 
 export interface TranspileOptions {
-  target: 'es2022' | 'es2023' | 'es2024';
-  module: 'commonjs' | 'es6';
+  target: string;
+  module: string;
   sourceMaps: boolean;
   minify: boolean;
   experimentalDecorators?: boolean;
 }
 
+export interface TranspileResult {
+  code: string;
+  sourceMap?: object;
+  metrics: {
+    inputSize: number;
+    outputSize: number;
+    duration: number;
+  };
+}
+
 export class TranspilationPipeline {
-  private metrics: TranspileMetrics;
-
-  constructor() {
-    this.metrics = new TranspileMetrics();
-  }
-
   async transpile(source: string, options: TranspileOptions): Promise<TranspileResult> {
     const startTime = performance.now();
-    let currentSource = source;
 
     try {
-      // Stage 1: TypeScript transpilation
-      const tsResult = await this.transpileTypeScript(currentSource, options);
-      currentSource = tsResult.code;
-      this.metrics.recordStageMetrics('typescript', performance.now() - startTime);
+      const swcOptions: Config = {
+        jsc: {
+          target: options.target,
+          parser: {
+            syntax: "typescript",
+            decorators: options.experimentalDecorators
+          }
+        },
+        module: {
+          type: options.module
+        },
+        minify: options.minify,
+        sourceMaps: options.sourceMaps
+      };
 
-      // Stage 2: SWC optimization
-      const swcStart = performance.now();
-      const swcResult = await this.optimizeWithSwc(currentSource, options);
-      currentSource = swcResult.code;
-      this.metrics.recordStageMetrics('swc', performance.now() - swcStart);
-
-      // Stage 3: ESBuild minification (if enabled)
-      if (options.minify) {
-        const minifyStart = performance.now();
-        const minifyResult = await this.minifyWithEsbuild(currentSource, options);
-        currentSource = minifyResult.code;
-        this.metrics.recordStageMetrics('minify', performance.now() - minifyStart);
-      }
+      const result = await transform(source, swcOptions);
 
       return {
-        code: currentSource,
-        sourceMap: options.sourceMaps ? this.generateSourceMap(currentSource) : undefined,
-        metrics: this.metrics.getMetrics()
+        code: result.code,
+        sourceMap: options.sourceMaps ? JSON.parse(result.map || "{}") : undefined,
+        metrics: {
+          inputSize: source.length,
+          outputSize: result.code.length,
+          duration: performance.now() - startTime
+        }
       };
     } catch (error) {
-      this.metrics.recordError(error);
+      console.error("Transpilation error:", error);
       throw error;
     }
-  }
-
-  private async transpileTypeScript(source: string, options: TranspileOptions): Promise<{ code: string }> {
-    const result = await transform(source, {
-      loader: 'ts',
-      target: options.target,
-      format: options.module,
-      sourcemap: options.sourceMaps,
-    });
-    return { code: result.code };
-  }
-
-  private async optimizeWithSwc(source: string, options: TranspileOptions): Promise<{ code: string }> {
-    return await swc.transform(source, {
-      jsc: {
-        target: options.target,
-        parser: { syntax: 'typescript' },
-        transform: {
-          decorators: options.experimentalDecorators,
-          legacyDecorator: options.experimentalDecorators,
-        },
-      },
-      module: { type: options.module === 'es6' ? 'es6' : 'commonjs' },
-      sourceMaps: options.sourceMaps,
-    });
-  }
-
-  private async minifyWithEsbuild(source: string, options: TranspileOptions): Promise<{ code: string }> {
-    const result = await transform(source, {
-      minify: true,
-      target: options.target,
-    });
-    return { code: result.code };
-  }
-
-  private generateSourceMap(source: string): string {
-    // Implement source map generation
-    return '';
   }
 }

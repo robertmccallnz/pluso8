@@ -1,25 +1,30 @@
 import { AppProps } from "$fresh/server.ts";
-import { Head } from "$fresh/runtime.ts";
 
 export default function App({ Component }: AppProps) {
   return (
     <>
-      <Head>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Pluso - AI Agent Platform</title>
-        <meta name="description" content="Create and manage AI agents" />
+        <meta name="description" content="Build and deploy AI agents with ease" />
+        <meta name="robots" content="index,follow" />
         <link rel="stylesheet" href="/styles.css" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
-          rel="stylesheet"
-        />
-      </Head>
-      <div class="min-h-screen bg-gray-50">
-        <Component />
-      </div>
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Pluso - AI Agent Platform" />
+        <meta property="og:description" content="Build and deploy AI agents with ease" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Pluso" />
+        <meta property="og:locale" content="en_NZ" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@PlusoAI" />
+        <meta name="twitter:title" content="Pluso - AI Agent Platform" />
+        <meta name="twitter:description" content="Build and deploy AI agents with ease" />
+      </head>
+      <Component />
     </>
   );
 }

@@ -1,4 +1,4 @@
-import supabase from '../supabase/client.ts';
+import supabase from "../client.ts";
 import { join } from "https://deno.land/std@0.210.0/path/mod.ts";
 
 export async function runMigrations() {

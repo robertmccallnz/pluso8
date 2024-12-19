@@ -9,10 +9,10 @@ export const CustomButton = styled(Button)({
   fontWeight: 500,
   boxShadow: "none",
   "&.MuiButton-contained": {
-    backgroundColor: COLORS.primary,
-    color: "#fff",
+    backgroundColor: COLORS.gray[100],
+    color: COLORS.gray[600],
     "&:hover": {
-      backgroundColor: COLORS.primaryDark,
+      backgroundColor: COLORS.gray[100],
       boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
     },
     "&:disabled": {
@@ -21,10 +21,10 @@ export const CustomButton = styled(Button)({
     },
   },
   "&.MuiButton-outlined": {
-    borderColor: COLORS.primary,
-    color: COLORS.primary,
+    borderColor: COLORS.gray[100],
+    color: COLORS.gray[600],
     "&:hover": {
-      borderColor: COLORS.primaryDark,
+      borderColor: COLORS.gray[100],
       backgroundColor: "rgba(0, 0, 0, 0.04)",
     },
     "&:disabled": {
@@ -33,7 +33,7 @@ export const CustomButton = styled(Button)({
     },
   },
   "&.MuiButton-text": {
-    color: COLORS.primary,
+    color: COLORS.gray[600],
     "&:hover": {
       backgroundColor: "rgba(0, 0, 0, 0.04)",
     },

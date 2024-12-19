@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell
-} from 'recharts';
+import { signal } from "@preact/signals";
+import { useEffect, useRef } from "preact/hooks";
+import { Chart } from "../../utils/chart.ts";
 import { Task, TaskMetrics } from '../multi-agent/TaskRouter';
 import { AgentConfig } from '../multi-agent/AgentOrchestrator';
 
@@ -21,14 +19,15 @@ const STATUS_COLORS = {
   failed: '#red'
 };
 
-export const AgentDashboard: React.FC<DashboardProps> = ({
-  agents,
-  tasks,
-  metrics
-}) => {
-  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
-  const [timeRange, setTimeRange] = useState('24h');
-  const [view, setView] = useState<'overview' | 'details'>('overview');
+export function AgentDashboard({ agents, tasks, metrics }: DashboardProps) {
+  const selectedAgent = signal<string | null>(null);
+  const timeRange = signal('24h');
+  const view = signal<'overview' | 'details'>('overview');
+
+  const lineChartRef = useRef<HTMLCanvasElement>(null);
+  const pieChartRef = useRef<HTMLCanvasElement>(null);
+  const lineChartInstance = useRef<Chart | null>(null);
+  const pieChartInstance = useRef<Chart | null>(null);
 
   const getFilteredTasks = () => {
     const now = new Date();
@@ -36,7 +35,7 @@ export const AgentDashboard: React.FC<DashboardProps> = ({
       '1h': 60 * 60 * 1000,
       '24h': 24 * 60 * 60 * 1000,
       '7d': 7 * 24 * 60 * 60 * 1000
-    }[timeRange];
+    }[timeRange.value];
 
     return tasks.filter(task => {
       const taskTime = new Date(task.updatedAt).getTime();
@@ -44,95 +43,129 @@ export const AgentDashboard: React.FC<DashboardProps> = ({
     });
   };
 
-  const TaskOverview: React.FC = () => {
-    const filteredTasks = getFilteredTasks();
-    const statusCount = filteredTasks.reduce((acc, task) => {
-      acc[task.status] = (acc[task.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+  useEffect(() => {
+    if (lineChartRef.current && pieChartRef.current) {
+      // Cleanup previous charts
+      if (lineChartInstance.current) {
+        lineChartInstance.current.destroy();
+      }
+      if (pieChartInstance.current) {
+        pieChartInstance.current.destroy();
+      }
 
-    const pieData = Object.entries(statusCount).map(([status, count]) => ({
-      name: status,
-      value: count
-    }));
+      // Create line chart
+      const lineCtx = lineChartRef.current.getContext('2d');
+      if (lineCtx) {
+        const agentData = agents.map(agent => ({
+          name: agent.name,
+          ...metrics[agent.id]
+        }));
+        lineChartInstance.current = new Chart(lineCtx, {
+          type: 'line',
+          data: {
+            labels: agentData.map(m => m.name),
+            datasets: [{
+              label: 'Task Completion Rate',
+              data: agentData.map(m => m.completionRate),
+              borderColor: COLORS[0],
+              tension: 0.1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
 
+      // Create pie chart
+      const pieCtx = pieChartRef.current.getContext('2d');
+      if (pieCtx) {
+        const filteredTasks = getFilteredTasks();
+        const statusCounts = filteredTasks.reduce((acc, task) => {
+          acc[task.status] = (acc[task.status] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+
+        pieChartInstance.current = new Chart(pieCtx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(statusCounts),
+            datasets: [{
+              data: Object.values(statusCounts),
+              backgroundColor: Object.keys(statusCounts).map(status => STATUS_COLORS[status] || '#gray')
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false
+          }
+        });
+      }
+    }
+
+    return () => {
+      if (lineChartInstance.current) {
+        lineChartInstance.current.destroy();
+      }
+      if (pieChartInstance.current) {
+        pieChartInstance.current.destroy();
+      }
+    };
+  }, [metrics, tasks, timeRange.value]);
+
+  function TaskOverview() {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-medium mb-4">Task Overview</h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={pieData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                label
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium mb-4">Task Overview</h3>
+        <div class="h-64">
+          <canvas ref={pieChartRef}></canvas>
         </div>
       </div>
     );
-  };
+  }
 
-  const AgentMetrics: React.FC = () => {
-    const agentData = agents.map(agent => ({
-      name: agent.name,
-      ...metrics[agent.id]
-    }));
-
+  function AgentMetrics() {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-medium mb-4">Agent Performance</h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={agentData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="successRate" stroke="#82ca9d" />
-              <Line type="monotone" dataKey="completionTime" stroke="#8884d8" />
-            </LineChart>
-          </ResponsiveContainer>
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium mb-4">Agent Performance</h3>
+        <div class="h-64">
+          <canvas ref={lineChartRef}></canvas>
         </div>
       </div>
     );
-  };
+  }
 
-  const TaskList: React.FC = () => {
+  function TaskList() {
     const filteredTasks = getFilteredTasks()
-      .filter(task => !selectedAgent || task.assignedTo === selectedAgent);
+      .filter(task => !selectedAgent.value || task.assignedTo === selectedAgent.value);
 
     return (
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-4 py-5 sm:px-6">
-          <h3 className="text-lg font-medium">Recent Tasks</h3>
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg font-medium">Recent Tasks</h3>
         </div>
-        <div className="border-t border-gray-200">
-          <ul className="divide-y divide-gray-200">
+        <div class="border-t border-gray-200">
+          <ul class="divide-y divide-gray-200">
             {filteredTasks.map(task => (
-              <li key={task.id} className="px-4 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+              <li key={task.id} class="px-4 py-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">
                       {task.type}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p class="text-sm text-gray-500">
                       Assigned to: {agents.find(a => a.id === task.assignedTo)?.name || 'Unassigned'}
                     </p>
                   </div>
                   <div>
                     <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${
+                      class={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${
                         STATUS_COLORS[task.status]
                       }-100 text-${STATUS_COLORS[task.status]}-800`}
                     >
@@ -146,27 +179,27 @@ export const AgentDashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
     );
-  };
+  }
 
   return (
-    <div className="p-6 space-y-6">
+    <div class="p-6 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Agent Dashboard</h2>
-        <div className="flex space-x-4">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold">Agent Dashboard</h2>
+        <div class="flex space-x-4">
           <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-            className="rounded-md border-gray-300"
+            value={timeRange.value}
+            onChange={(e) => timeRange.value = (e.target as HTMLSelectElement).value}
+            class="rounded-md border-gray-300"
           >
             <option value="1h">Last Hour</option>
             <option value="24h">Last 24 Hours</option>
             <option value="7d">Last 7 Days</option>
           </select>
           <select
-            value={selectedAgent || ''}
-            onChange={(e) => setSelectedAgent(e.target.value || null)}
-            className="rounded-md border-gray-300"
+            value={selectedAgent.value || ''}
+            onChange={(e) => selectedAgent.value = (e.target as HTMLSelectElement).value || null}
+            class="rounded-md border-gray-300"
           >
             <option value="">All Agents</option>
             {agents.map(agent => (
@@ -175,11 +208,11 @@ export const AgentDashboard: React.FC<DashboardProps> = ({
               </option>
             ))}
           </select>
-          <div className="flex rounded-md shadow-sm">
+          <div class="flex rounded-md shadow-sm">
             <button
-              onClick={() => setView('overview')}
-              className={`px-4 py-2 text-sm font-medium rounded-l-md ${
-                view === 'overview'
+              onClick={() => view.value = 'overview'}
+              class={`px-4 py-2 text-sm font-medium rounded-l-md ${
+                view.value === 'overview'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white text-gray-700'
               }`}
@@ -187,9 +220,9 @@ export const AgentDashboard: React.FC<DashboardProps> = ({
               Overview
             </button>
             <button
-              onClick={() => setView('details')}
-              className={`px-4 py-2 text-sm font-medium rounded-r-md ${
-                view === 'details'
+              onClick={() => view.value = 'details'}
+              class={`px-4 py-2 text-sm font-medium rounded-r-md ${
+                view.value === 'details'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white text-gray-700'
               }`}
@@ -201,8 +234,8 @@ export const AgentDashboard: React.FC<DashboardProps> = ({
       </div>
 
       {/* Main Content */}
-      {view === 'overview' ? (
-        <div className="grid grid-cols-2 gap-6">
+      {view.value === 'overview' ? (
+        <div class="grid grid-cols-2 gap-6">
           <TaskOverview />
           <AgentMetrics />
         </div>
@@ -211,13 +244,13 @@ export const AgentDashboard: React.FC<DashboardProps> = ({
       )}
 
       {/* Quick Actions */}
-      <div className="fixed bottom-6 right-6">
+      <div class="fixed bottom-6 right-6">
         <button
           onClick={() => {/* Add new task */}}
-          className="bg-blue-600 text-white rounded-full p-4 shadow-lg hover:bg-blue-700"
+          class="bg-blue-600 text-white rounded-full p-4 shadow-lg hover:bg-blue-700"
         >
           <svg
-            className="h-6 w-6"
+            class="h-6 w-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -233,4 +266,4 @@ export const AgentDashboard: React.FC<DashboardProps> = ({
       </div>
     </div>
   );
-};
+}

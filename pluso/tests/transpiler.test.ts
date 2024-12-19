@@ -1,17 +1,17 @@
 // tests/transpiler.test.ts
-import { describe, it, expect } from 'vitest';
-import { TranspilationPipeline, TranspileOptions } from '../core/transpiler/pipeline';
+import { assertEquals } from "https://deno.land/std@0.208.0/assert/mod.ts";
+import { TranspilationPipeline, TranspileOptions } from '../core/transpiler/pipeline.ts';
 
-describe('TranspilationPipeline', () => {
+Deno.test("TranspilationPipeline", async (t) => {
   const pipeline = new TranspilationPipeline();
   const defaultOptions: TranspileOptions = {
-    target: 'es2023',
+    target: 'es2022',
     module: 'es6',
     sourceMaps: true,
     minify: false
   };
 
-  it('should transpile TypeScript code', async () => {
+  await t.step("should transpile TypeScript code", async () => {
     const source = `
       interface User {
         name: string;
@@ -25,11 +25,11 @@ describe('TranspilationPipeline', () => {
     `;
 
     const result = await pipeline.transpile(source, defaultOptions);
-    expect(result.code).toBeDefined();
-    expect(result.metrics).toBeDefined();
+    assertEquals(typeof result.code, "string");
+    assertEquals(typeof result.metrics, "object");
   });
 
-  it('should handle decorators when enabled', async () => {
+  await t.step("should handle decorators when enabled", async () => {
     const source = `
       @decorator
       class TestClass {
@@ -44,11 +44,11 @@ describe('TranspilationPipeline', () => {
     };
 
     const result = await pipeline.transpile(source, options);
-    expect(result.code).toBeDefined();
-    expect(result.metrics).toBeDefined();
+    assertEquals(typeof result.code, "string");
+    assertEquals(typeof result.metrics, "object");
   });
 
-  it('should generate source maps when enabled', async () => {
+  await t.step("should generate source maps when enabled", async () => {
     const source = `
       const x = 1;
       const y = 2;
@@ -60,10 +60,10 @@ describe('TranspilationPipeline', () => {
       sourceMaps: true
     });
 
-    expect(result.sourceMap).toBeDefined();
+    assertEquals(typeof result.sourceMap, "object");
   });
 
-  it('should minify code when enabled', async () => {
+  await t.step("should minify code when enabled", async () => {
     const source = `
       function test() {
         const longVariableName = "test";
@@ -75,3 +75,8 @@ describe('TranspilationPipeline', () => {
       ...defaultOptions,
       minify: true
     });
+    
+    assertEquals(typeof result.code, "string");
+    assertEquals(result.code.length < source.length, true);
+  });
+});

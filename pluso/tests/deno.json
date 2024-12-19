@@ -1,0 +1,15 @@
+{
+  "tasks": {
+    "test": "deno test --allow-read --allow-write --allow-net --allow-env",
+    "test:unit": "deno test --allow-read --allow-write tests/unit/",
+    "test:integration": "deno test --allow-read --allow-write --allow-net --allow-env tests/integration/"
+  },
+  "imports": {
+    "$fresh/": "https://deno.land/x/fresh@1.6.1/",
+    "preact": "https://esm.sh/preact@10.19.2",
+    "preact/": "https://esm.sh/preact@10.19.2/",
+    "@preact/signals": "https://esm.sh/*@preact/signals@1.2.1",
+    "@preact/signals-core": "https://esm.sh/@preact/signals-core@1.5.0",
+    "puppeteer": "https://deno.land/x/puppeteer@16.2.0/mod.ts"
+  }
+}

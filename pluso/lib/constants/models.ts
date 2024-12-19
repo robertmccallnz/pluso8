@@ -14,16 +14,28 @@ export type ModelType =
   | "embedding"
   | "image"
   | "audio"
-  | "multimodal";
+  | "multimodal"
+  | "voice";
 
 export type ModelProvider =
   | "together"
   | "openai"
   | "anthropic"
   | "mistral"
-  | "cohere";
+  | "cohere"
+  | "ultravox";
 
 export const AVAILABLE_MODELS: Model[] = [
+  // Ultravox Voice Models
+  {
+    id: "ultravox-voice-chat",
+    name: "Ultravox Voice Chat",
+    description: "Real-time voice chat model with natural conversation capabilities",
+    type: "voice",
+    provider: "ultravox",
+    contextWindow: 16384,
+    costPer1kTokens: 0.002,
+  },
   // Together AI Chat Models
   {
     id: "mistral-7b-instruct",

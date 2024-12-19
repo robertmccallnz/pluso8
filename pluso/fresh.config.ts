@@ -1,14 +1,19 @@
 import { defineConfig } from "$fresh/server.ts";
-import tailwind from "$fresh/plugins/tailwind.ts";
-
-// Load environment variables
-await import("$std/dotenv/load.ts");
+import twindPlugin from "$fresh/plugins/twind.ts";
 
 export default defineConfig({
   plugins: [
-    tailwind({
-      cssPath: "./static/styles.css",
-      configPath: "./tailwind.config.ts",
+    twindPlugin({
+      selfURL: import.meta.url,
+      configPath: "./twind.config.ts",
     }),
   ],
+  static: {
+    maxAge: 120,
+    immutable: true,
+  },
+  build: {
+    target: "es2022",
+    cssMinify: true,
+  }
 });

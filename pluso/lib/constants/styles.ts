@@ -1,5 +1,11 @@
 // lib/constants/styles.ts
 export const COLORS = {
+  chat: "#3B82F6", // blue
+  completion: "#10B981", // green
+  embedding: "#8B5CF6", // purple
+  image: "#F59E0B", // amber
+  audio: "#EC4899", // pink
+  multimodal: "#6366F1", // indigo
   primary: {
     50: "#f0f9ff",
     100: "#e0f2fe",
@@ -112,7 +118,7 @@ export const LAYOUT = {
 export const TYPOGRAPHY = {
   fontFamily: {
     sans: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    mono: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+    mono: 'ui-monospace, SFMono-Regular, Menlo, Monaco, "Liberation Mono", "Courier New", monospace',
   },
   fontSize: {
     xs: "0.75rem",

@@ -1,0 +1,24 @@
+[0m[32mCheck[0m file:///Users/robertmccall/pluso8/pluso/tests/api.test.ts
+[0m[1m[31merror[0m: [0m[1mTS2304 [0m[ERROR]: Cannot find name 'Deno'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'deno.ns' or add a triple-slash directive to the top of your entrypoint (main file): /// <reference lib="deno.ns" />
+const BASE_URL = Deno.env.get("API_URL") || "http://localhost:8000";
+[0m[31m                 ~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/api.test.ts[0m:[0m[33m3[0m:[0m[33m18[0m
+
+[0m[1mTS18046 [0m[ERROR]: 'error' is of type 'unknown'.
+    throw new Error(`Failed testing ${endpoint.path}: ${error.message}`);
+[0m[31m                                                        ~~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/api.test.ts[0m:[0m[33m118[0m:[0m[33m57[0m
+
+[0m[1mTS2304 [0m[ERROR]: Cannot find name 'Deno'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'deno.ns' or add a triple-slash directive to the top of your entrypoint (main file): /// <reference lib="deno.ns" />
+Deno.test("API Endpoints Test Suite", async (t) => {
+[0m[31m~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/api.test.ts[0m:[0m[33m122[0m:[0m[33m1[0m
+
+[0m[1mTS7006 [0m[ERROR]: Parameter 't' implicitly has an 'any' type.
+Deno.test("API Endpoints Test Suite", async (t) => {
+[0m[31m                                             ^[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/api.test.ts[0m:[0m[33m122[0m:[0m[33m46[0m
+
+Found 4 errors.
+./scripts/daily-tests.sh: line 15: deno: command not found
+./scripts/daily-tests.sh: line 15: deno: command not found

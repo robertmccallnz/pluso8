@@ -1,4 +1,4 @@
-import supabase from "../database/supabase/client.ts";
+import supabase from "../database/client.ts";
 
 interface AgentStatus {
   agentId: string;

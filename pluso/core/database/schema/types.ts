@@ -181,6 +181,114 @@ export interface Database {
           created_at?: string
         }
       }
+      users: {
+        Row: {
+          id: string
+          email: string
+          full_name: string | null
+          avatar_url: string | null
+          role: 'admin' | 'user' | 'trial'
+          subscription_status: 'trial' | 'active' | 'inactive'
+          trial_start: string | null
+          trial_end: string | null
+          created_at: string
+          updated_at: string
+          last_login: string | null
+          settings: Json | null
+          metadata: Json | null
+        }
+        Insert: {
+          id?: string
+          email: string
+          full_name?: string | null
+          avatar_url?: string | null
+          role?: 'admin' | 'user' | 'trial'
+          subscription_status?: 'trial' | 'active' | 'inactive'
+          trial_start?: string | null
+          trial_end?: string | null
+          created_at?: string
+          updated_at?: string
+          last_login?: string | null
+          settings?: Json | null
+          metadata?: Json | null
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string | null
+          avatar_url?: string | null
+          role?: 'admin' | 'user' | 'trial'
+          subscription_status?: 'trial' | 'active' | 'inactive'
+          trial_start?: string | null
+          trial_end?: string | null
+          created_at?: string
+          updated_at?: string
+          last_login?: string | null
+          settings?: Json | null
+          metadata?: Json | null
+        }
+      }
+      user_agents: {
+        Row: {
+          id: string
+          user_id: string
+          agent_id: string
+          created_at: string
+          updated_at: string
+          is_favorite: boolean
+          custom_settings: Json | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          agent_id: string
+          created_at?: string
+          updated_at?: string
+          is_favorite?: boolean
+          custom_settings?: Json | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          agent_id?: string
+          created_at?: string
+          updated_at?: string
+          is_favorite?: boolean
+          custom_settings?: Json | null
+        }
+      }
+      user_analytics: {
+        Row: {
+          id: string
+          user_id: string
+          event_type: string
+          event_data: Json
+          created_at: string
+          session_id: string | null
+          platform: string | null
+          device: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          event_type: string
+          event_data: Json
+          created_at?: string
+          session_id?: string | null
+          platform?: string | null
+          device?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          event_type?: string
+          event_data?: Json
+          created_at?: string
+          session_id?: string | null
+          platform?: string | null
+          device?: string | null
+        }
+      }
     }
   }
 }

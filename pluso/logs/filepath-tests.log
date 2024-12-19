@@ -1,0 +1,49 @@
+[0m[32mCheck[0m file:///Users/robertmccall/pluso8/pluso/tests/filepaths.test.ts
+[0m[1m[31merror[0m: [0m[1mTS2304 [0m[ERROR]: Cannot find name 'Deno'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'deno.ns' or add a triple-slash directive to the top of your entrypoint (main file): /// <reference lib="deno.ns" />
+Deno.test("File Structure Test Suite", async (t) => {
+[0m[31m~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/filepaths.test.ts[0m:[0m[33m22[0m:[0m[33m1[0m
+
+[0m[1mTS7006 [0m[ERROR]: Parameter 't' implicitly has an 'any' type.
+Deno.test("File Structure Test Suite", async (t) => {
+[0m[31m                                              ^[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/filepaths.test.ts[0m:[0m[33m22[0m:[0m[33m47[0m
+
+[0m[1mTS2304 [0m[ERROR]: Cannot find name 'Deno'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'deno.ns' or add a triple-slash directive to the top of your entrypoint (main file): /// <reference lib="deno.ns" />
+      const exists = await Deno.stat(path).then(() => true).catch(() => false);
+[0m[31m                           ~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/filepaths.test.ts[0m:[0m[33m28[0m:[0m[33m28[0m
+
+[0m[1mTS2304 [0m[ERROR]: Cannot find name 'Deno'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'deno.ns' or add a triple-slash directive to the top of your entrypoint (main file): /// <reference lib="deno.ns" />
+      const exists = await Deno.stat(path).then(() => true).catch(() => false);
+[0m[31m                           ~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/filepaths.test.ts[0m:[0m[33m36[0m:[0m[33m28[0m
+
+[0m[1mTS2339 [0m[ERROR]: Property 'isFile' does not exist on type 'WalkEntry'.
+      if (entry.isFile && entry.path.endsWith(".ts") || entry.path.endsWith(".tsx")) {
+[0m[31m                ~~~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/filepaths.test.ts[0m:[0m[33m43[0m:[0m[33m17[0m
+
+[0m[1mTS2339 [0m[ERROR]: Property 'isFile' does not exist on type 'WalkEntry'.
+      if (entry.isFile && entry.path.endsWith(".tsx")) {
+[0m[31m                ~~~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/filepaths.test.ts[0m:[0m[33m55[0m:[0m[33m17[0m
+
+[0m[1mTS2339 [0m[ERROR]: Property 'isFile' does not exist on type 'WalkEntry'.
+      if (entry.isFile && (entry.path.endsWith(".ts") || entry.path.endsWith(".tsx"))) {
+[0m[31m                ~~~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/filepaths.test.ts[0m:[0m[33m68[0m:[0m[33m17[0m
+
+[0m[1mTS2339 [0m[ERROR]: Property 'isFile' does not exist on type 'WalkEntry'.
+      if (entry.isFile && !entry.name.startsWith(".")) {
+[0m[31m                ~~~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/filepaths.test.ts[0m:[0m[33m80[0m:[0m[33m17[0m
+
+[0m[1mTS2339 [0m[ERROR]: Property 'name' does not exist on type 'WalkEntry'.
+      if (entry.isFile && !entry.name.startsWith(".")) {
+[0m[31m                                 ~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/filepaths.test.ts[0m:[0m[33m80[0m:[0m[33m34[0m
+
+Found 9 errors.
+./scripts/daily-tests.sh: line 15: deno: command not found
+./scripts/daily-tests.sh: line 15: deno: command not found

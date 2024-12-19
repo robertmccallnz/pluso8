@@ -18,6 +18,18 @@ export interface DashboardData {
   agents: AgentStats[];
   industries: IndustryCategory[];
   templates: AgentTemplate[];
+  stats: {
+    totalAgents: number;
+    activeAgents: number;
+    totalRequests: number;
+    averageLatency: number;
+  };
+  metricsData: {
+    timestamps: string[];
+    petunia: number[];
+    maia: number[];
+    jeff: number[];
+  };
 }
 
 export interface IndustryCategory {

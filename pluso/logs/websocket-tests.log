@@ -1,0 +1,19 @@
+[0m[32mCheck[0m file:///Users/robertmccall/pluso8/pluso/tests/websockets.test.ts
+[0m[1m[31merror[0m: [0m[1mTS2304 [0m[ERROR]: Cannot find name 'Deno'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'deno.ns' or add a triple-slash directive to the top of your entrypoint (main file): /// <reference lib="deno.ns" />
+const BASE_URL = Deno.env.get("WS_URL") || "ws://localhost:8000";
+[0m[31m                 ~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/websockets.test.ts[0m:[0m[33m4[0m:[0m[33m18[0m
+
+[0m[1mTS2304 [0m[ERROR]: Cannot find name 'Deno'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'deno.ns' or add a triple-slash directive to the top of your entrypoint (main file): /// <reference lib="deno.ns" />
+Deno.test("WebSocket Endpoints Test Suite", async (t) => {
+[0m[31m~~~~[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/websockets.test.ts[0m:[0m[33m221[0m:[0m[33m1[0m
+
+[0m[1mTS7006 [0m[ERROR]: Parameter 't' implicitly has an 'any' type.
+Deno.test("WebSocket Endpoints Test Suite", async (t) => {
+[0m[31m                                                   ^[0m
+    at [0m[36mfile:///Users/robertmccall/pluso8/pluso/tests/websockets.test.ts[0m:[0m[33m221[0m:[0m[33m52[0m
+
+Found 3 errors.
+./scripts/daily-tests.sh: line 15: deno: command not found
+./scripts/daily-tests.sh: line 15: deno: command not found

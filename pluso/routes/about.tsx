@@ -1,69 +1,41 @@
-import { Handlers } from "$fresh/server.ts";
-import NavBar from "../islands/NavBar.tsx";
-import { COLORS, TYPOGRAPHY } from "../lib/constants/styles.ts";
+import { PageProps } from "$fresh/server.ts";
 
-export const handler: Handlers = {
-  async GET(_req, ctx) {
-    const resp = await ctx.render();
-    resp.headers.set("X-Custom-Header", "Hello");
-    return resp;
-  },
-};
-
-export default function AboutPage() {
+export default function AboutPage(props: PageProps) {
   return (
-    <div 
-      style={{
-        fontFamily: TYPOGRAPHY.fontFamily.base,
-        backgroundColor: COLORS.background.primary
-      }}
-      class="min-h-screen"
-    >
-      <NavBar />
-      <main class="pt-16 container mx-auto px-4">
-        <h1 
-          style={{
-            color: COLORS.text.primary,
-            fontSize: TYPOGRAPHY.fontSize['2xl']
-          }}
-          class="mb-6"
-        >
-          About Pluso
-        </h1>
-        <div 
-          style={{
-            color: COLORS.text.secondary
-          }}
-          class="prose max-w-none"
-        >
-          <p class="mb-4">
-            Welcome to Pluso - your comprehensive AI assistant platform. We bring together specialized AI agents to help with various aspects of your life and work.
+    <div class="min-h-screen bg-gray-50 py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+          <h1 class="text-4xl font-bold text-gray-900 mb-8">About PluSO</h1>
+          <p class="text-xl text-gray-600 mb-12">
+            Empowering developers with intelligent AI agents
           </p>
-          <p class="mb-4">
-            Meet our AI team:
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-8 mb-12">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
+          <p class="text-gray-600 mb-6">
+            PluSO is dedicated to making AI development accessible, efficient, and powerful. 
+            We provide a comprehensive platform for creating, testing, and deploying AI agents 
+            that can transform how you build and scale your applications.
           </p>
-          <ul class="list-disc pl-5 mb-4">
-            <li><strong>Maia:</strong> Your personal AI companion for everyday tasks and conversations</li>
-            <li><strong>Jeff:</strong> Legal expert specializing in property law and regulations</li>
-            <li><strong>Petunia:</strong> Creative assistant for writing and content creation</li>
+
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">Key Features</h2>
+          <ul class="list-disc list-inside text-gray-600 space-y-2 mb-6">
+            <li>Intuitive agent development interface</li>
+            <li>Real-time testing and debugging tools</li>
+            <li>Comprehensive analytics and monitoring</li>
+            <li>Scalable deployment options</li>
+            <li>Enterprise-grade security</li>
           </ul>
-          <p>
-            Each AI agent is designed with specific expertise and capabilities to provide you with the best possible assistance in their respective domains.
+
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">Our Team</h2>
+          <p class="text-gray-600">
+            We're a team of passionate developers, AI researchers, and product designers 
+            working together to build the future of AI development. Our diverse backgrounds 
+            and expertise enable us to create innovative solutions for complex challenges.
           </p>
         </div>
-      </main>
-      <footer class="text-center text-gray-500 text-sm py-12 mt-16 space-y-2">
-        <div>
-          &copy; {new Date().getFullYear()} <span class="font-mono">plu_SO</span>
-        </div>
-        <div class="flex justify-center space-x-4">
-          <span>Tel: 022 400 4387</span>
-          <span>|</span>
-          <a href="mailto:hello@pluso.co.nz" class="hover:text-gray-700">
-            hello@pluso.co.nz
-          </a>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }
