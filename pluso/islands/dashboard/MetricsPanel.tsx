@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "preact/hooks";
-import { MetricVisualization } from "../../core/metrics/types.ts";
+import { MetricVisualization } from "../../core/types/metrics.ts";
 import { COLORS } from "../../lib/constants/styles.ts";
 
 interface Props {

@@ -1,7 +1,7 @@
 // islands/interfaces/AgentConfig.tsx
 import { type useSignal } from "@preact/signals";
 
-import type { AgentConfig, ModelConfig } from "../../types/agent.ts";
+import type { AgentConfig, ModelConfig } from "../../agents/types/agent.ts";
 import { AgentToolRegistry } from "../../core/tools/registry.ts";
 
 interface AgentConfigUIProps {

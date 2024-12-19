@@ -1,35 +1,31 @@
 import { useRef, useEffect } from "preact/hooks";
 import { signal } from "@preact/signals";
-import { ChatMessage } from "../../types/chat.ts";
-import { WebSocketClient } from "../../utils/websocket.ts";
+import { WebSocketClient } from "../../../utils/websocket.ts";
 
-interface MaiaChatProps {
-  agentId: string;
-  initialMessage?: string;
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: string;
 }
 
-const messages = signal<ChatMessage[]>([]);
+const messages = signal<Message[]>([]);
 const isConnected = signal(false);
 const isTyping = signal(false);
 
-export default function MaiaChat({ agentId, initialMessage }: MaiaChatProps) {
-  const wsClient = useRef<WebSocketClient | null>(null);
+export default function PetuniaPage() {
+  const wsClientRef = useRef<WebSocketClient | null>(null);
 
   useEffect(() => {
-    // Initialize WebSocket connection
-    wsClient.current = new WebSocketClient(
-      `/api/agents/${agentId}/ws`,
+    wsClientRef.current = new WebSocketClient(
+      `/api/agents/petunia/ws`,
       {
         onOpen: () => {
           isConnected.value = true;
-          if (initialMessage) {
-            wsClient.current?.send(initialMessage);
-          }
         },
         onClose: () => {
           isConnected.value = false;
         },
-        onMessage: (message: ChatMessage) => {
+        onMessage: (message: Message) => {
           messages.value = [...messages.value, message];
           isTyping.value = false;
         },
@@ -41,21 +37,21 @@ export default function MaiaChat({ agentId, initialMessage }: MaiaChatProps) {
     );
 
     return () => {
-      wsClient.current?.close();
+      wsClientRef.current?.close();
     };
-  }, [agentId, initialMessage]);
+  }, []);
 
   const handleSend = (content: string) => {
-    if (!wsClient.current || !isConnected.value) return;
+    if (!wsClientRef.current || !isConnected.value) return;
     
-    const message: ChatMessage = {
+    const message: Message = {
       role: "user",
       content,
       timestamp: new Date().toISOString()
     };
     
     messages.value = [...messages.value, message];
-    wsClient.current.send(content);
+    wsClientRef.current.send(content);
     isTyping.value = true;
   };
 

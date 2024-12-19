@@ -1,106 +1,30 @@
 import { useCallback, useState } from "preact/hooks";
-
-interface Tool {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  icon: string;
-  requiredConfig: {
-    name: string;
-    type: "string" | "number" | "boolean";
-    description: string;
-    required: boolean;
-    secret?: boolean;
-  }[];
-}
+import { AgentTool, ToolType } from "../../agents/types/agent.ts";
+import { AVAILABLE_TOOLS, TOOL_TYPE_LABELS } from "../../lib/constants/tools.ts";
+import { INDUSTRY_TEMPLATES } from "../../types/templates.ts";
 
 interface ToolsStepProps {
   config: Partial<{
-    tools: string[];
-    toolsConfig: Record<string, Record<string, string | number | boolean>>;
+    tools: {
+      function?: string[];
+      retrieval?: string[];
+      action?: string[];
+    };
+    toolsConfig: Record<string, Record<string, unknown>>;
+    template: string;
+    industry: string;
   }>;
   onUpdate: (update: Partial<{
-    tools: string[];
-    toolsConfig: Record<string, Record<string, string | number | boolean>>;
+    tools: {
+      function?: string[];
+      retrieval?: string[];
+      action?: string[];
+    };
+    toolsConfig: Record<string, Record<string, unknown>>;
   }>) => void;
   onNext: () => void;
   onBack: () => void;
 }
-
-const TOOLS: Tool[] = [
-  {
-    id: "web-search",
-    name: "Web Search",
-    description: "Search the internet for up-to-date information",
-    category: "Research",
-    icon: "🔍",
-    requiredConfig: [
-      {
-        name: "apiKey",
-        type: "string",
-        description: "Google Custom Search API Key",
-        required: true,
-        secret: true,
-      },
-      {
-        name: "searchEngineId",
-        type: "string",
-        description: "Google Custom Search Engine ID",
-        required: true,
-      },
-    ],
-  },
-  {
-    id: "document-qa",
-    name: "Document Q&A",
-    description: "Answer questions based on uploaded documents",
-    category: "Analysis",
-    icon: "📄",
-    requiredConfig: [
-      {
-        name: "maxTokens",
-        type: "number",
-        description: "Maximum tokens per response",
-        required: false,
-      },
-    ],
-  },
-  {
-    id: "email",
-    name: "Email Integration",
-    description: "Send and analyze emails",
-    category: "Communication",
-    icon: "📧",
-    requiredConfig: [
-      {
-        name: "smtpServer",
-        type: "string",
-        description: "SMTP Server",
-        required: true,
-      },
-      {
-        name: "smtpPort",
-        type: "number",
-        description: "SMTP Port",
-        required: true,
-      },
-      {
-        name: "username",
-        type: "string",
-        description: "SMTP Username",
-        required: true,
-      },
-      {
-        name: "password",
-        type: "string",
-        description: "SMTP Password",
-        required: true,
-        secret: true,
-      },
-    ],
-  },
-];
 
 function ToolCard({ 
   tool, 
@@ -109,153 +33,197 @@ function ToolCard({
   onConfigChange,
   config = {},
 }: { 
-  tool: Tool;
+  tool: AgentTool;
   isSelected: boolean;
   onToggle: () => void;
-  onConfigChange: (config: Record<string, string | number | boolean>) => void;
-  config?: Record<string, string | number | boolean>;
+  onConfigChange: (config: Record<string, unknown>) => void;
+  config?: Record<string, unknown>;
 }) {
-  const [isConfigOpen, setIsConfigOpen] = useState(false);
-
-  const handleConfigChange = useCallback((key: string, value: string) => {
-    const newConfig = { ...config };
-    if (tool.requiredConfig.find(c => c.name === key)?.type === "number") {
-      newConfig[key] = Number(value);
-    } else {
-      newConfig[key] = value;
-    }
-    onConfigChange(newConfig);
+  const handleConfigChange = useCallback((key: string, value: unknown) => {
+    onConfigChange({
+      ...config,
+      [key]: value,
+    });
   }, [config, onConfigChange]);
 
   return (
-    <div class={`border rounded-lg overflow-hidden transition-all ${
-      isSelected ? "border-blue-500" : "border-gray-200"
-    }`}>
-      <div
-        class={`p-4 cursor-pointer hover:bg-gray-50 ${isSelected ? "bg-blue-50" : ""}`}
-        onClick={onToggle}
-      >
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <span class="text-2xl">{tool.icon}</span>
-            <div>
-              <h3 class="text-lg font-medium text-gray-900">{tool.name}</h3>
-              <p class="text-sm text-gray-500">{tool.description}</p>
-            </div>
+    <div
+      class={`relative rounded-lg border p-6 transition-all hover:shadow-md ${
+        isSelected ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-blue-200"
+      }`}
+    >
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex-grow">
+          <div class="flex items-center gap-2">
+            <h3 class="text-lg font-medium text-gray-900">{tool.name}</h3>
+            <button
+              onClick={onToggle}
+              class={`px-3 py-1 rounded-full text-sm ${
+                isSelected
+                  ? "bg-blue-100 text-blue-800"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {isSelected ? "Enabled" : "Disabled"}
+            </button>
           </div>
-          <div class="flex items-center space-x-2">
-            {isSelected && tool.requiredConfig.length > 0 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsConfigOpen(!isConfigOpen);
-                }}
-                class="px-2 py-1 text-sm text-blue-600 hover:text-blue-700"
-              >
-                Configure
-              </button>
-            )}
-            <div class="h-4 w-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center">
-              {isSelected && <div class="h-2 w-2 rounded-full bg-blue-600" />}
-            </div>
-          </div>
+          <p class="text-sm text-gray-500">{tool.type}</p>
         </div>
       </div>
 
-      {isSelected && isConfigOpen && tool.requiredConfig.length > 0 && (
-        <div class="border-t border-gray-200 p-4 bg-gray-50">
-          <div class="space-y-4">
-            {tool.requiredConfig.map((configItem) => (
-              <div key={configItem.name}>
+      <p class="text-gray-600 mb-4">{tool.description}</p>
+
+      {isSelected && (
+        <div class="mt-4 space-y-4">
+          {tool.type === 'function' && tool.config.function && (
+            Object.entries(tool.config.function.parameters).map(([key, param]) => (
+              <div key={key} class="space-y-1">
                 <label class="block text-sm font-medium text-gray-700">
-                  {configItem.name}
-                  {configItem.required && <span class="text-red-500 ml-1">*</span>}
+                  {key}
+                  {param.required && <span class="text-red-500">*</span>}
                 </label>
                 <input
-                  type={configItem.secret ? "password" : "text"}
-                  value={config[configItem.name] || ""}
-                  onChange={(e) => handleConfigChange(
-                    configItem.name,
-                    (e.target as HTMLInputElement).value
-                  )}
+                  type={param.secret ? "password" : "text"}
+                  value={config[key] as string}
+                  onChange={(e) => handleConfigChange(key, e.currentTarget.value)}
                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  placeholder={configItem.description}
+                  placeholder={param.description}
+                  required={param.required}
                 />
-                <p class="mt-1 text-xs text-gray-500">{configItem.description}</p>
+                <p class="text-sm text-gray-500">{param.description}</p>
               </div>
-            ))}
-          </div>
+            ))
+          )}
+          {tool.type === 'retrieval' && tool.config.retrieval && (
+            <div class="space-y-2">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Max Results</label>
+                <input
+                  type="number"
+                  value={tool.config.retrieval.maxResults}
+                  onChange={(e) => handleConfigChange('maxResults', parseInt(e.currentTarget.value))}
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                />
+              </div>
+            </div>
+          )}
+          {tool.type === 'action' && tool.config.action && (
+            <div class="space-y-2">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Timeout (ms)</label>
+                <input
+                  type="number"
+                  value={tool.config.action.timeout}
+                  onChange={(e) => handleConfigChange('timeout', parseInt(e.currentTarget.value))}
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-export default function ToolsStep({ config, onUpdate, onNext }: ToolsStepProps) {
-  const selectedTools = config.tools || [];
-  const toolsConfig = config.toolsConfig || {};
+export default function ToolsStep({ config, onUpdate, onNext, onBack }: ToolsStepProps) {
+  const [selectedTools, setSelectedTools] = useState<Record<ToolType, string[]>>(
+    config.tools || {
+      function: [],
+      retrieval: [],
+      action: [],
+    }
+  );
+  
+  const [toolsConfig, setToolsConfig] = useState<Record<string, Record<string, unknown>>>(
+    config.toolsConfig || {}
+  );
 
-  const toggleTool = useCallback((toolId: string) => {
-    const newTools = selectedTools.includes(toolId)
-      ? selectedTools.filter(id => id !== toolId)
-      : [...selectedTools, toolId];
-    
-    onUpdate({ tools: newTools });
-  }, [selectedTools, onUpdate]);
+  const toggleTool = (tool: AgentTool) => {
+    const currentSelected = selectedTools[tool.type] || [];
+    const newSelected = currentSelected.includes(tool.name)
+      ? currentSelected.filter(name => name !== tool.name)
+      : [...currentSelected, tool.name];
 
-  const handleToolConfig = useCallback((toolId: string, config: Record<string, string | number | boolean>) => {
+    const newSelectedTools = {
+      ...selectedTools,
+      [tool.type]: newSelected,
+    };
+
+    setSelectedTools(newSelectedTools);
     onUpdate({
-      toolsConfig: {
-        ...toolsConfig,
-        [toolId]: config,
-      },
+      tools: newSelectedTools,
+      toolsConfig,
     });
-  }, [toolsConfig, onUpdate]);
+  };
 
-  const isToolConfigValid = useCallback((tool: Tool) => {
-    const config = toolsConfig[tool.id];
-    if (!config) return false;
-
-    return tool.requiredConfig.every(configItem => {
-      if (!configItem.required) return true;
-      return config[configItem.name] !== undefined && config[configItem.name] !== "";
+  const handleConfigChange = (toolName: string, newConfig: Record<string, unknown>) => {
+    const updatedConfig = {
+      ...toolsConfig,
+      [toolName]: newConfig,
+    };
+    setToolsConfig(updatedConfig);
+    onUpdate({
+      tools: selectedTools,
+      toolsConfig: updatedConfig,
     });
-  }, [toolsConfig]);
+  };
 
-  const canContinue = selectedTools.every(toolId => {
-    const tool = TOOLS.find(t => t.id === toolId);
-    return tool ? isToolConfigValid(tool) : true;
-  });
+  // Group tools by type
+  const toolsByType = AVAILABLE_TOOLS.reduce((acc, tool) => {
+    if (!acc[tool.type]) {
+      acc[tool.type] = [];
+    }
+    acc[tool.type].push(tool);
+    return acc;
+  }, {} as Record<ToolType, AgentTool[]>);
+
+  const hasSelectedTools = Object.values(selectedTools).some(tools => tools.length > 0);
 
   return (
-    <div class="max-w-4xl mx-auto p-6">
-      <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-3">Add Tools</h2>
+    <div class="space-y-8">
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">Configure Tools</h2>
         <p class="text-gray-600">
           Select and configure the tools your agent will have access to.
         </p>
       </div>
 
-      <div class="space-y-4">
-        {TOOLS.map((tool) => (
-          <ToolCard
-            key={tool.id}
-            tool={tool}
-            isSelected={selectedTools.includes(tool.id)}
-            onToggle={() => toggleTool(tool.id)}
-            onConfigChange={(config) => handleToolConfig(tool.id, config)}
-            config={toolsConfig[tool.id]}
-          />
-        ))}
-      </div>
+      {Object.entries(toolsByType).map(([type, tools]) => (
+        <div key={type} class="space-y-4">
+          <h3 class="text-xl font-medium">{TOOL_TYPE_LABELS[type as ToolType]}</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {tools.map((tool) => (
+              <ToolCard
+                key={tool.name}
+                tool={tool}
+                isSelected={(selectedTools[tool.type] || []).includes(tool.name)}
+                onToggle={() => toggleTool(tool)}
+                onConfigChange={(config) => handleConfigChange(tool.name, config)}
+                config={toolsConfig[tool.name]}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
 
-      <div class="mt-8 flex justify-end">
+      <div class="flex justify-between pt-6">
+        <button
+          onClick={onBack}
+          class="px-4 py-2 text-gray-600 hover:text-gray-800"
+        >
+          Back
+        </button>
         <button
           onClick={onNext}
-          disabled={!canContinue}
-          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+          disabled={!hasSelectedTools}
+          class={`px-4 py-2 rounded-lg ${
+            hasSelectedTools
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
         >
-          Continue
+          Next
         </button>
       </div>
     </div>

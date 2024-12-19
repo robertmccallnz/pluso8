@@ -1,162 +1,141 @@
-interface Template {
-  id: string;
-  name: string;
-  description: string;
-  features: string[];
-  category: string;
-  systemPrompt: string;
-  requiredModels: {
-    primary: string[];
-    fallback?: string[];
-    embedding?: string[];
-  };
-}
+import { Signal } from "@preact/signals";
+import { Template } from "../../types/templates.ts";
 
 interface TemplateStepProps {
-  config: Partial<{
-    template: string;
+  formValues: Signal<{
     industry: string;
+    template: string;
+    tools: string[];
+    toolsConfig: Record<string, Record<string, string | number | boolean>>;
+    models: {
+      primary: string[];
+      fallback?: string[];
+      embedding?: string[];
+    };
+    name: string;
+    description: string;
+    systemPrompt: string;
+    evaluationCriteria: Array<{
+      id: string;
+      threshold: number;
+      weight: number;
+    }>;
   }>;
-  onUpdate: (update: Partial<{ template: string }>) => void;
+  templates: Template[];
   onNext: () => void;
   onBack: () => void;
 }
 
-const TEMPLATES: Record<string, Template[]> = {
-  legal: [
-    {
-      id: "legal-researcher",
-      name: "Legal Research Assistant",
-      description: "AI assistant specialized in legal research, case law analysis, and document review",
-      features: ["Case Law Analysis", "Document Review", "Legal Research", "Citation Management"],
-      category: "legal",
-      systemPrompt: "You are a legal research assistant with expertise in case law analysis and legal document review...",
-      requiredModels: {
-        primary: ["gpt-4", "claude-2"],
-        fallback: ["gpt-3.5-turbo"],
-        embedding: ["text-embedding-ada-002"],
-      },
-    },
-    {
-      id: "contract-analyzer",
-      name: "Contract Analyzer",
-      description: "Specialized in contract review, risk assessment, and compliance checking",
-      features: ["Contract Review", "Risk Assessment", "Compliance Check", "Term Extraction"],
-      category: "legal",
-      systemPrompt: "You are a contract analysis specialist focused on identifying risks and ensuring compliance...",
-      requiredModels: {
-        primary: ["gpt-4", "claude-2"],
-        fallback: ["gpt-3.5-turbo"],
-      },
-    },
-  ],
-  healthcare: [
-    {
-      id: "medical-researcher",
-      name: "Medical Research Assistant",
-      description: "AI assistant for medical research, literature review, and clinical data analysis",
-      features: ["Literature Review", "Data Analysis", "Research Synthesis", "Citation Management"],
-      category: "healthcare",
-      systemPrompt: "You are a medical research assistant specializing in analyzing clinical data and research papers...",
-      requiredModels: {
-        primary: ["gpt-4", "claude-2"],
-        embedding: ["text-embedding-ada-002"],
-      },
-    },
-  ],
-  // Add more templates for other industries...
-};
-
-export default function TemplateStep({ config, onUpdate, onNext }: TemplateStepProps) {
-  const templates = TEMPLATES[config.industry || ""] || [];
+export default function TemplateStep({ formValues, templates, onNext, onBack }: TemplateStepProps) {
+  const industryTemplates = templates.filter(t => t.industry === formValues.value.industry);
 
   return (
-    <div class="max-w-5xl mx-auto p-6">
-      <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-3">Choose a Template</h2>
-        <p class="text-gray-600">
-          Select a template that matches your use case. You can customize it in the next steps.
+    <div class="space-y-8">
+      <div class="text-center">
+        <h2 class="text-2xl font-bold text-gray-900">Choose Template</h2>
+        <p class="mt-2 text-sm text-gray-600">
+          Select a template that matches your agent's functionality
         </p>
       </div>
 
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {templates.map((template) => (
-          <div
+      <div class="grid grid-cols-1 gap-6">
+        {industryTemplates.map((template) => (
+          <button
             key={template.id}
-            class={`relative rounded-lg border p-6 cursor-pointer transition-all hover:shadow-md ${
-              config.template === template.id
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-200 hover:border-blue-200"
-            }`}
             onClick={() => {
-              onUpdate({ template: template.id });
-              // Auto advance to next step after selection
-              setTimeout(onNext, 500);
+              formValues.value = {
+                ...formValues.value,
+                template: template.id,
+                systemPrompt: template.systemPrompt,
+                tools: template.tools,
+                models: template.models,
+                evaluationCriteria: template.evaluationCriteria
+              };
+              onNext();
             }}
+            class={`relative rounded-lg border p-6 text-left shadow-sm focus:outline-none ${
+              formValues.value.template === template.id
+                ? "border-blue-500 ring-2 ring-blue-500"
+                : "border-gray-300 hover:border-gray-400"
+            }`}
           >
-            <div class="flex items-center justify-between mb-4">
+            <div>
               <h3 class="text-lg font-medium text-gray-900">{template.name}</h3>
-              <div class="h-4 w-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center">
-                {config.template === template.id && (
-                  <div class="h-2 w-2 rounded-full bg-blue-600" />
-                )}
-              </div>
-            </div>
-            
-            <p class="text-sm text-gray-500 mb-4">{template.description}</p>
-
-            <div class="space-y-3">
-              <div>
-                <div class="text-xs text-gray-400 mb-2">Features:</div>
-                <div class="flex flex-wrap gap-2">
-                  {template.features.map((feature) => (
+              <p class="mt-1 text-sm text-gray-500">{template.description}</p>
+              
+              {/* Features */}
+              <div class="mt-4">
+                <h4 class="text-sm font-medium text-gray-900">Features</h4>
+                <div class="mt-2 flex flex-wrap gap-2">
+                  {template.tools.map((tool) => (
                     <span
-                      key={feature}
-                      class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800"
+                      key={tool}
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
                     >
-                      {feature}
+                      {tool}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <div>
-                <div class="text-xs text-gray-400 mb-2">Required Models:</div>
-                <div class="space-y-1">
-                  <div class="flex flex-wrap gap-2">
-                    {template.requiredModels.primary.map((model) => (
-                      <span
-                        key={model}
-                        class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800"
-                      >
-                        {model}
-                      </span>
-                    ))}
-                  </div>
-                  {template.requiredModels.fallback && (
+              {/* Models */}
+              <div class="mt-4">
+                <h4 class="text-sm font-medium text-gray-900">Models</h4>
+                <div class="mt-2 space-y-2">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-500">Primary:</span>
                     <div class="flex flex-wrap gap-2">
-                      {template.requiredModels.fallback.map((model) => (
+                      {template.models.primary.map((model) => (
                         <span
                           key={model}
-                          class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800"
+                          class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"
                         >
-                          {model} (fallback)
+                          {model}
                         </span>
                       ))}
+                    </div>
+                  </div>
+                  {template.models.fallback && (
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm text-gray-500">Fallback:</span>
+                      <div class="flex flex-wrap gap-2">
+                        {template.models.fallback.map((model) => (
+                          <span
+                            key={model}
+                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800"
+                          >
+                            {model}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
-      {templates.length === 0 && (
-        <div class="text-center py-12">
-          <p class="text-gray-500">Please select an industry first to see available templates.</p>
-        </div>
-      )}
+      <div class="flex justify-between pt-8">
+        <button
+          onClick={onBack}
+          class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+        >
+          Back
+        </button>
+        <button
+          onClick={onNext}
+          disabled={!formValues.value.template}
+          class={`px-4 py-2 text-sm font-medium text-white ${
+            formValues.value.template
+              ? "bg-blue-600 hover:bg-blue-700"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }

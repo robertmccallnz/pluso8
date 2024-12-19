@@ -1,3 +1,8 @@
+import { Signal } from "@preact/signals";
+import { INDUSTRIES } from "../../types/industries.ts";
+import { INDUSTRY_AGENT_TYPES } from "../../agents/types/agent_types.ts";
+import { useState } from "preact/hooks";
+
 interface Industry {
   id: string;
   name: string;
@@ -7,103 +12,75 @@ interface Industry {
 }
 
 interface IndustryStepProps {
-  config: Partial<{
+  formValues: Signal<{
     industry: string;
+    template: string;
+    tools: string[];
+    toolsConfig: Record<string, Record<string, string | number | boolean>>;
+    models: {
+      primary: string[];
+      fallback?: string[];
+      embedding?: string[];
+    };
+    name: string;
+    description: string;
+    systemPrompt: string;
+    evaluationCriteria: Array<{
+      id: string;
+      threshold: number;
+      weight: number;
+    }>;
   }>;
-  onUpdate: (update: Partial<{ industry: string }>) => void;
+  industries: Industry[];
   onNext: () => void;
   onBack: () => void;
 }
 
-const INDUSTRIES: Industry[] = [
-  {
-    id: "legal",
-    name: "Legal",
-    description: "AI agents for legal research, document analysis, and compliance",
-    icon: "⚖️",
-    templates: ["legal-researcher", "contract-analyzer", "compliance-checker"],
-  },
-  {
-    id: "healthcare",
-    name: "Healthcare",
-    description: "AI agents for medical research, patient support, and healthcare operations",
-    icon: "🏥",
-    templates: ["medical-researcher", "patient-support", "health-ops"],
-  },
-  {
-    id: "finance",
-    name: "Finance",
-    description: "AI agents for financial analysis, risk assessment, and market research",
-    icon: "💰",
-    templates: ["financial-analyst", "risk-assessor", "market-researcher"],
-  },
-  {
-    id: "education",
-    name: "Education",
-    description: "AI agents for tutoring, course creation, and educational content",
-    icon: "🎓",
-    templates: ["tutor", "course-creator", "content-curator"],
-  },
-  {
-    id: "customer-service",
-    name: "Customer Service",
-    description: "AI agents for customer support, FAQ handling, and ticket management",
-    icon: "🎯",
-    templates: ["support-agent", "faq-bot", "ticket-handler"],
-  },
-];
-
-export default function IndustryStep({ config, onUpdate, onNext }: IndustryStepProps) {
+export default function IndustryStep({ formValues, industries, onNext, onBack }: IndustryStepProps) {
   return (
-    <div class="max-w-3xl mx-auto p-6">
-      <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-3">Select Your Industry</h2>
-        <p class="text-gray-600">
-          Choose the industry that best matches your business needs. This helps us provide
-          the most relevant agent templates and configurations.
+    <div class="space-y-8">
+      <div class="text-center">
+        <h2 class="text-2xl font-bold text-gray-900">Select Industry</h2>
+        <p class="mt-2 text-sm text-gray-600">
+          Choose the industry that best matches your agent's purpose
         </p>
       </div>
 
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {INDUSTRIES.map((industry) => (
-          <div
+        {industries.map((industry) => (
+          <button
             key={industry.id}
-            class={`relative rounded-lg border p-6 cursor-pointer transition-all hover:shadow-md ${
-              config.industry === industry.id
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-200 hover:border-blue-200"
-            }`}
             onClick={() => {
-              onUpdate({ industry: industry.id });
-              // Auto advance to next step after selection
-              setTimeout(onNext, 500);
+              formValues.value = {
+                ...formValues.value,
+                industry: industry.id
+              };
+              onNext();
             }}
+            class={`relative rounded-lg border p-6 text-left shadow-sm focus:outline-none ${
+              formValues.value.industry === industry.id
+                ? "border-blue-500 ring-2 ring-blue-500"
+                : "border-gray-300 hover:border-gray-400"
+            }`}
           >
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-4xl">{industry.icon}</span>
-              <div class="h-4 w-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center">
-                {config.industry === industry.id && (
-                  <div class="h-2 w-2 rounded-full bg-blue-600" />
-                )}
+            <div class="flex items-center space-x-4">
+              <div class="flex-shrink-0 text-2xl">{industry.icon}</div>
+              <div>
+                <h3 class="text-lg font-medium text-gray-900">{industry.name}</h3>
+                <p class="mt-1 text-sm text-gray-500">{industry.description}</p>
               </div>
             </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">{industry.name}</h3>
-            <p class="text-sm text-gray-500">{industry.description}</p>
-            <div class="mt-4">
-              <div class="text-xs text-gray-400">Available Templates:</div>
-              <div class="flex flex-wrap gap-2 mt-2">
-                {industry.templates.map((template) => (
-                  <span
-                    key={template}
-                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800"
-                  >
-                    {template}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
+          </button>
         ))}
+      </div>
+
+      <div class="flex justify-between pt-8">
+        <button
+          onClick={onBack}
+          class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+        >
+          Back
+        </button>
       </div>
     </div>
   );

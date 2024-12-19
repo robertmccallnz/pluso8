@@ -1,5 +1,5 @@
 import { useState, useEffect } from "preact/hooks";
-import { AgentMetrics } from "../../core/metrics/types.ts";
+import { AgentMetrics } from "../../core/types/metrics.ts";
 import { COLORS } from "../../lib/constants/styles.ts";
 
 interface Props {

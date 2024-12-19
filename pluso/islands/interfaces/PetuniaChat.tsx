@@ -22,7 +22,7 @@ export default function PetuniaChat() {
 
   useEffect(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/api/petunia/ws-chat`;
+    const wsUrl = `${protocol}//${window.location.host}/api/petunia/ws`;
     console.log('Connecting to WebSocket at:', wsUrl);
 
     const wsInstance = new WebSocket(wsUrl);
