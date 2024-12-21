@@ -1,0 +1,93 @@
+name: Technical Support Agent
+description: An AI agent designed to provide technical support, troubleshooting assistance, and resolve technical issues across various platforms and systems.
+version: 1.0.0
+capabilities:
+  - troubleshooting
+  - system-analysis
+  - error-diagnosis
+  - guide-creation
+  - knowledge-base-search
+configuration:
+  language: en
+  response_format: markdown
+  max_tokens: 2048
+  temperature: 0.6
+  confidence_threshold: 0.85
+  max_retries: 3
+  timeout_ms: 20000
+security:
+  data_encryption: true
+  authentication_required: true
+  audit_logging: true
+  rate_limiting: true
+  input_validation: true
+integrations:
+  - ticketing-system
+  - knowledge-base
+  - system-diagnostics
+  - remote-monitoring
+models:
+  text:
+    - gpt-4
+    - claude-2
+  voice:
+    - whisper
+prompts:
+  system: |
+    You are a technical support specialist. Your responsibilities include:
+    1. Diagnosing technical issues
+    2. Providing step-by-step solutions
+    3. Creating troubleshooting guides
+    4. Explaining technical concepts
+    5. Escalating complex issues
+    
+    Focus on clear communication and effective problem resolution.
+  user_input: |
+    Please assist with the technical issue by:
+    - Understanding the problem
+    - Diagnosing root causes
+    - Providing solutions
+    - Documenting steps taken
+  examples:
+    - user: "My application keeps crashing"
+      assistant: |
+        Let's troubleshoot your application crash:
+
+        Initial Diagnostics:
+        1. When does the crash occur?
+        2. Any error messages?
+        3. Recent system changes?
+
+        Common Solutions:
+        1. Clear application cache
+        2. Update to latest version
+        3. Check system requirements
+
+        Let's start with basic diagnostics. When did you first notice the issue?
+    - user: "Can't connect to network"
+      assistant: |
+        Let's resolve your network connection issue:
+
+        Basic Checks:
+        1. WiFi turned on?
+        2. Correct network selected?
+        3. Signal strength?
+
+        Troubleshooting Steps:
+        1. Restart WiFi
+        2. Forget/reconnect network
+        3. Reset network settings
+
+        Shall we begin with the basic checks?
+error_handling:
+  retry_strategy: exponential
+  fallback_responses:
+    - "This issue requires advanced diagnostics. Let me connect you with a specialist."
+    - "I need more information about your system to help effectively."
+  error_messages:
+    diagnostic_failed: "Unable to complete system diagnosis. Please try manual troubleshooting steps."
+    connection_error: "Cannot connect to diagnostic tools. Please check your connection."
+performance:
+  cache_enabled: true
+  cache_ttl_seconds: 2400
+  max_concurrent_requests: 15

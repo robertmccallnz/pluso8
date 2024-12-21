@@ -9,11 +9,6 @@ const envSchema = z.object({
   HUGGINGFACE_API_KEY: z.string().min(1),
   TOGETHER_API_KEY: z.string().min(1),
   
-  // Database & Infrastructure
-  SUPABASE_URL: z.string().url(),
-  SUPABASE_ANON_KEY: z.string().min(1),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  
   // Email & Payments
   STRIPE_SECRET_KEY: z.string().min(1),
   STRIPE_WEBHOOK_SECRET: z.string().min(1),
@@ -56,11 +51,6 @@ export async function loadEnvConfig() {
       ANTHROPIC_API_KEY: loadedEnv["ANTHROPIC_API_KEY"] || Deno.env.get("ANTHROPIC_API_KEY"),
       HUGGINGFACE_API_KEY: loadedEnv["HUGGINGFACE_API_KEY"] || Deno.env.get("HUGGINGFACE_API_KEY"),
       TOGETHER_API_KEY: loadedEnv["TOGETHER_API_KEY"] || Deno.env.get("TOGETHER_API_KEY"),
-      
-      // Database & Infrastructure
-      SUPABASE_URL: loadedEnv["SUPABASE_URL"] || Deno.env.get("SUPABASE_URL"),
-      SUPABASE_ANON_KEY: loadedEnv["SUPABASE_ANON_KEY"] || Deno.env.get("SUPABASE_ANON_KEY"),
-      SUPABASE_SERVICE_ROLE_KEY: loadedEnv["SUPABASE_SERVICE_ROLE_KEY"] || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"),
       
       // Email & Payments
       STRIPE_SECRET_KEY: loadedEnv["STRIPE_SECRET_KEY"] || Deno.env.get("STRIPE_SECRET_KEY"),

@@ -17,8 +17,8 @@ interface PdfUpload {
   };
 }
 
-async function generateChatResponse(message: string, model = "togethercomputer/llama-2-70b-chat") {
-  const response = await fetch("https://api.together.xyz/inference", {
+async function generateChatResponse(message: string, model = "mistralai/Mixtral-8x7B-Instruct-v0.1") {
+  const response = await fetch("https://api.together.xyz/v1/chat/completions", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${TOGETHER_API_KEY}`,
@@ -26,13 +26,14 @@ async function generateChatResponse(message: string, model = "togethercomputer/l
     },
     body: JSON.stringify({
       model: model,
-      prompt: message,
-      max_tokens: 512,
+      messages: [
+        {
+          role: "user",
+          content: message
+        }
+      ],
       temperature: 0.7,
-      top_p: 0.7,
-      top_k: 50,
-      repetition_penalty: 1,
-      stop: ["</s>", "Human:", "Assistant:"],
+      max_tokens: 512
     }),
   });
 
@@ -41,7 +42,7 @@ async function generateChatResponse(message: string, model = "togethercomputer/l
   }
 
   const data = await response.json();
-  return data.output.text.trim();
+  return data.choices[0].message.content.trim();
 }
 
 export async function handler(req: Request, _ctx: FreshContext): Promise<Response> {

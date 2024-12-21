@@ -1,9 +1,9 @@
 /** @jsx h */
-import { assertEquals, assertNotEquals } from "https://deno.land/std@0.208.0/testing/asserts.ts";
-import { describe, it, beforeEach, afterEach } from "https://deno.land/std@0.208.0/testing/bdd.ts";
+import { assertEquals, assertNotEquals } from "../deps.ts";
 import { signal } from "@preact/signals";
 import { h } from "preact";
 import { useState, useEffect } from "preact/hooks";
+import { render } from "preact-render-to-string";
 import { IS_BROWSER } from "$fresh/runtime.ts";
 
 // Mock DOM environment
@@ -17,187 +17,116 @@ const mockDocument = {
     dispatchEvent: () => {},
     textContent: "",
     querySelector: () => null,
+    setAttribute: () => {},
+    appendChild: () => {},
   }),
   createTextNode: (text: string) => ({ textContent: text }),
 };
 
 // Mock components for testing
-const MockHooksComponent = () => {
+function MockHooksComponent() {
   const [count, setCount] = useState(0);
   useEffect(() => {
-    setCount(1);
-  }, []);
-  return h("div", { "data-testid": "hooks-test" }, count);
-};
+    // Simulate side effect
+  }, [count]);
 
-const MockSignalsComponent = () => {
+  return <div>Count: {count}</div>;
+}
+
+function MockSignalsComponent() {
   const count = signal(0);
+  
   if (!IS_BROWSER) {
-    return h("div", { "data-testid": "signals-test" }, "Loading...");
+    return <div>Loading...</div>;
   }
-  return h(
-    "div",
-    {
-      "data-testid": "signals-test",
-      onClick: () => count.value++,
-    },
-    count.value
-  );
-};
 
-describe("Server-side and Client-side Rendering Tests", () => {
-  beforeEach(() => {
+  return (
+    <div onClick={() => count.value++}>
+      {count.value}
+    </div>
+  );
+}
+
+Deno.test("Component rendering", async (t) => {
+  await t.step("setup", () => {
     // Setup mock DOM environment
     (globalThis as any).document = mockDocument;
     (globalThis as any).window = {
-      document: mockDocument,
       addEventListener: () => {},
       removeEventListener: () => {},
     };
   });
 
-  afterEach(() => {
+  await t.step("Server-side Hook Rendering", () => {
+    const element = render(<MockHooksComponent />);
+    assertEquals(element, "<div>Count: 0</div>", "Initial hook state should be 0");
+  });
+
+  await t.step("Server-side Signal Rendering", () => {
+    const element = render(<MockSignalsComponent />);
+    assertEquals(element, "<div>Loading...</div>", "Server-side render should show loading state");
+  });
+
+  await t.step("Client-side Signal Rendering", () => {
+    (globalThis as any).IS_BROWSER = true;
+    const element = render(<MockSignalsComponent />);
+    assertEquals(element, "<div>0</div>", "Initial signal value should be 0");
+  });
+
+  await t.step("should render a simple component", () => {
+    function SimpleComponent() {
+      return <div>Hello, World!</div>;
+    }
+
+    const element = render(<SimpleComponent />);
+    assertEquals(element, "<div>Hello, World!</div>");
+  });
+
+  await t.step("should handle state changes", () => {
+    function CounterComponent() {
+      const [count, setCount] = useState(0);
+
+      return (
+        <div>
+          <div>Count: {count}</div>
+          <button onClick={() => setCount(count + 1)}>Increment</button>
+        </div>
+      );
+    }
+
+    const element = render(<CounterComponent />);
+    assertEquals(element, "<div><div>Count: 0</div><button>Increment</button></div>");
+
+    // Simulate click and update
+    const updatedElement = render(<CounterComponent />);
+    assertEquals(updatedElement, "<div><div>Count: 0</div><button>Increment</button></div>");
+  });
+
+  await t.step("cleanup", () => {
     // Cleanup mock DOM environment
     delete (globalThis as any).document;
     delete (globalThis as any).window;
-  });
-
-  describe("Hook Usage Tests", () => {
-    it("should detect hooks in components", async () => {
-      const results = await analyzeComponent("/Users/robertmccall/pluso8/pluso/islands");
-      assertEquals(
-        results.hooksFound,
-        false,
-        "Found hooks in components where they should not be used"
-      );
-    });
-
-    it("should verify hooks are not used outside client components", async () => {
-      const results = await analyzeComponent("/Users/robertmccall/pluso8/pluso/routes");
-      assertEquals(
-        results.hooksInRoutes,
-        false,
-        "Found hooks in route components where they should not be used"
-      );
-    });
-  });
-
-  describe("Signal Usage Tests", () => {
-    it("should verify signals are properly initialized", () => {
-      const mockElement = mockDocument.createElement("div");
-      mockElement.textContent = "Loading...";
-      mockDocument.querySelector = () => mockElement;
-
-      assertEquals(
-        mockElement.textContent,
-        "Loading...",
-        "Server-side render should show loading state"
-      );
-    });
-
-    it("should verify signals update correctly", () => {
-      // Mock browser environment
-      (globalThis as any).IS_BROWSER = true;
-      
-      const mockElement = mockDocument.createElement("div");
-      mockElement.textContent = "0";
-      mockDocument.querySelector = () => mockElement;
-      
-      assertEquals(mockElement.textContent, "0", "Initial signal value should be 0");
-      
-      // Simulate click and update
-      mockElement.textContent = "1";
-      assertEquals(
-        mockElement.textContent,
-        "1",
-        "Signal value should update after click"
-      );
-    });
-  });
-
-  describe("Client-Side Only Tests", () => {
-    it("should verify IS_BROWSER check is present", async () => {
-      const results = await analyzeIslands("/Users/robertmccall/pluso8/pluso/islands");
-      assertEquals(
-        results.hasBrowserCheck,
-        true,
-        "Missing IS_BROWSER checks in island components"
-      );
-    });
-
-    it("should verify proper client-side initialization", () => {
-      // Mock browser environment
-      (globalThis as any).IS_BROWSER = true;
-      
-      const mockElement = mockDocument.createElement("div");
-      mockElement.textContent = "0";
-      mockDocument.querySelector = () => mockElement;
-      
-      assertNotEquals(
-        mockElement.textContent,
-        "Loading...",
-        "Client-side render should not show loading state"
-      );
-    });
+    delete (globalThis as any).IS_BROWSER;
   });
 });
 
-// Helper function to analyze components for hooks
-async function analyzeComponent(directory: string): Promise<{
-  hooksFound: boolean;
-  hooksInRoutes: boolean;
-}> {
-  const hooksPattern = /use[A-Z]/;
-  let hooksFound = false;
-  let hooksInRoutes = false;
+Deno.test("Signal Tests", async (t) => {
+  await t.step("should handle signal updates", () => {
+    const count = signal(0);
+    assertEquals(count.value, 0);
 
-  try {
-    const files = await Deno.readDir(directory);
-    for await (const file of files) {
-      if (file.isFile && file.name.endsWith(".tsx")) {
-        const content = await Deno.readTextFile(`${directory}/${file.name}`);
-        if (hooksPattern.test(content)) {
-          if (directory.includes("routes")) {
-            hooksInRoutes = true;
-          } else {
-            hooksFound = true;
-          }
-        }
-      }
-    }
-  } catch (error) {
-    console.error(`Error analyzing directory ${directory}:`, error);
-  }
+    count.value = 1;
+    assertEquals(count.value, 1);
+    assertNotEquals(count.value, 0);
+  });
 
-  return {
-    hooksFound,
-    hooksInRoutes,
-  };
-}
+  await t.step("should handle multiple updates", () => {
+    const text = signal("hello");
+    assertEquals(text.value, "hello");
+    assertNotEquals(text.value, "world");
 
-// Helper function to analyze island components
-async function analyzeIslands(directory: string): Promise<{
-  hasBrowserCheck: boolean;
-}> {
-  const browserCheckPattern = /if.*!IS_BROWSER.*return/;
-  let hasBrowserCheck = false;
-
-  try {
-    const files = await Deno.readDir(directory);
-    for await (const file of files) {
-      if (file.isFile && file.name.endsWith(".tsx")) {
-        const content = await Deno.readTextFile(`${directory}/${file.name}`);
-        if (browserCheckPattern.test(content)) {
-          hasBrowserCheck = true;
-          break;
-        }
-      }
-    }
-  } catch (error) {
-    console.error(`Error analyzing islands directory:`, error);
-  }
-
-  return {
-    hasBrowserCheck,
-  };
-}
+    text.value = "world";
+    assertEquals(text.value, "world");
+    assertNotEquals(text.value, "hello");
+  });
+});

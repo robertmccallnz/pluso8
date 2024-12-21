@@ -10,6 +10,7 @@ export default function App({ Component }: AppProps) {
         <meta name="description" content="Build and deploy AI agents with ease" />
         <meta name="robots" content="index,follow" />
         <link rel="stylesheet" href="/styles.css" />
+        <link rel="stylesheet" href="/css/prism-tomorrow.css" />
 
         {/* Open Graph */}
         <meta property="og:title" content="Pluso - AI Agent Platform" />

@@ -1,9 +1,8 @@
-import { assertEquals, assertExists } from "../deps.ts";
-import { describe, it } from "../deps.ts";
-import { spy, assertSpyCalls } from "../deps.ts";
+import { assertEquals, assertExists } from "https://deno.land/std@0.211.0/testing/asserts.ts";
+import { spy, assertSpyCalls } from "https://deno.land/std@0.211.0/testing/mock.ts";
 
-describe("Widget Component", () => {
-  it("should initialize with disconnected state", () => {
+Deno.test("Widget Component", () => {
+  Deno.test("should initialize with disconnected state", () => {
     // Test initial state
     const mockState = {
       isConnected: false,
@@ -16,7 +15,7 @@ describe("Widget Component", () => {
     assertEquals(mockState.reconnectAttempts, 0);
   });
 
-  it("should handle connection status changes", () => {
+  Deno.test("should handle connection status changes", () => {
     // Mock WebSocket client
     const mockWsClient = {
       connect: spy(() => Promise.resolve()),
@@ -33,7 +32,7 @@ describe("Widget Component", () => {
     assertSpyCalls(mockWsClient.disconnect, 1);
   });
 
-  it("should handle reconnection attempts", () => {
+  Deno.test("should handle reconnection attempts", () => {
     const maxReconnectAttempts = 3;
     let reconnectAttempts = 0;
     
@@ -45,7 +44,7 @@ describe("Widget Component", () => {
     assertEquals(reconnectAttempts, maxReconnectAttempts);
   });
 
-  it("should handle message sending", () => {
+  Deno.test("should handle message sending", () => {
     const mockWsClient = {
       send: spy((message: string) => Promise.resolve()),
     };
@@ -57,7 +56,7 @@ describe("Widget Component", () => {
     assertSpyCalls(mockWsClient.send, 1);
   });
 
-  it("should handle connection errors", () => {
+  Deno.test("should handle connection errors", () => {
     let errorMessage = "";
     
     try {

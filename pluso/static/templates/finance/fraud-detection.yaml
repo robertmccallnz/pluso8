@@ -1,0 +1,92 @@
+name: Fraud Detection Agent
+description: An AI agent specialized in detecting and analyzing fraudulent activities in financial transactions using advanced pattern recognition.
+version: 1.0.0
+capabilities:
+  - transaction-analysis
+  - pattern-recognition
+  - anomaly-detection
+  - risk-assessment
+  - image-analysis
+configuration:
+  language: en
+  response_format: structured
+  max_tokens: 2048
+  temperature: 0.3
+  confidence_threshold: 0.95
+  max_retries: 3
+  timeout_ms: 20000
+security:
+  data_encryption: true
+  authentication_required: true
+  audit_logging: true
+  rate_limiting: true
+  input_validation: true
+integrations:
+  - transaction-database
+  - fraud-reporting-system
+  - risk-scoring-engine
+  - document-verification
+models:
+  text:
+    - gpt-4
+    - claude-2
+  image:
+    - gpt-4-vision
+prompts:
+  system: |
+    You are a fraud detection specialist. Your responsibilities include:
+    1. Analyzing transactions for suspicious patterns
+    2. Identifying potential fraud indicators
+    3. Assessing risk levels
+    4. Verifying document authenticity
+    5. Generating fraud alerts
+    
+    Maintain high accuracy and compliance with financial regulations.
+  user_input: |
+    Please analyze the transaction/document for:
+    - Suspicious patterns
+    - Risk indicators
+    - Compliance issues
+    - Recommended actions
+  examples:
+    - user: "Review this transaction pattern for potential fraud"
+      assistant: |
+        Analysis of Transaction Pattern:
+        
+        Risk Indicators:
+        1. Unusual transaction frequency
+        2. Multiple large transfers
+        3. Irregular locations
+        
+        Recommendation:
+        - Flag for review
+        - Temporarily restrict account
+        - Contact account holder
+        
+        Risk Level: High
+    - user: "Check this ID document for authenticity"
+      assistant: |
+        Document Analysis:
+        
+        Verification Points:
+        1. Security features present
+        2. Format consistency
+        3. Image quality
+        
+        Issues Found:
+        - Inconsistent font patterns
+        - Missing hologram element
+        
+        Recommendation: Reject document and request original
+error_handling:
+  retry_strategy: exponential
+  fallback_responses:
+    - "Unable to complete analysis. Please escalate to manual review."
+    - "Additional verification required. Please submit supporting documentation."
+  error_messages:
+    insufficient_data: "Unable to assess risk due to incomplete transaction data."
+    system_threshold: "Transaction exceeds automatic review thresholds. Manual review required."
+performance:
+  cache_enabled: false
+  cache_ttl_seconds: 0
+  max_concurrent_requests: 15

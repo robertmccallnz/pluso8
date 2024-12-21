@@ -2,8 +2,6 @@ import { Options } from "$fresh/plugins/twind.ts";
 
 export default {
   selfURL: import.meta.url,
-  darkMode: "class",
-  mode: "silent",
   theme: {
     extend: {
       colors: {
@@ -38,12 +36,12 @@ export default {
       '--bc': '0 0% 20%',   // lemonade base-content
     }
   },
-  plugins: {
-    btn: 'inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2',
-    'btn-primary': 'text-white bg-primary-600 hover:bg-primary-700 focus:ring-primary-500',
-    navbar: 'flex items-center justify-between w-full',
-    'navbar-start': 'flex-1 flex items-center justify-start',
-    'navbar-center': 'flex-none flex items-center justify-center',
-    'navbar-end': 'flex-1 flex items-center justify-end',
-  },
+  rules: [
+    ['btn', 'inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2'],
+    ['btn-primary', 'text-white bg-primary-600 hover:bg-primary-700 focus:ring-primary-500'],
+    ['navbar', 'flex items-center justify-between w-full'],
+    ['navbar-start', 'flex-1 flex items-center justify-start'],
+    ['navbar-center', 'flex-none flex items-center justify-center'],
+    ['navbar-end', 'flex-1 flex items-center justify-end'],
+  ],
 } as Options;

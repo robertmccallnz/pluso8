@@ -7,15 +7,22 @@ import * as $_error from './routes/_error.tsx';
 import * as $_layout from './routes/_layout.tsx';
 import * as $_middleware from './routes/_middleware.ts';
 import * as $about from './routes/about.tsx';
-import * as $api_auth_path_ from './routes/api/auth/[...path].ts';
+import * as $admin_index from './routes/admin/index.tsx';
+import * as $api_chat_maia from './routes/api/chat/maia.ts';
 import * as $api_dashboard from './routes/api/dashboard.ts';
 import * as $api_index from './routes/api/index.ts';
 import * as $api_profile from './routes/api/profile.ts';
 import * as $api_settings from './routes/api/settings.ts';
-import * as $auth_login from './routes/auth/login.tsx';
-import * as $auth_signup from './routes/auth/signup.tsx';
-import * as $components_SignupForm from './routes/components/SignupForm.tsx';
+import * as $api_health from './routes/api/health.ts';
+import * as $api_health_islands from './routes/api/health/islands.ts';
+import * as $api_health_metrics from './routes/api/health/metrics.ts';
+import * as $api_metrics_index from './routes/api/metrics/index.ts';
+import * as $api_metrics_verify from './routes/api/metrics/verify.ts';
+import * as $api_metrics_record from './routes/api/metrics/record.ts';
+import * as $api_models from './routes/api/models.ts';
+import * as $api_ping from './routes/api/ping.ts';
 import * as $contact from './routes/contact.tsx';
+import * as $dashboard from './routes/dashboard.tsx';
 import * as $dashboard_layout from './routes/dashboard/_layout.tsx';
 import * as $dashboard_agents_id_ from './routes/dashboard/agents/[id].tsx';
 import * as $dashboard_agents_deploy_agentId_ from './routes/dashboard/agents/deploy/[agentId].tsx';
@@ -27,13 +34,13 @@ import * as $dashboard_index from './routes/dashboard/index.tsx';
 import * as $dashboard_metrics_index from './routes/dashboard/metrics/index.tsx';
 import * as $dashboard_models_index from './routes/dashboard/models/index.tsx';
 import * as $dashboard_monitoring_index from './routes/dashboard/monitoring/index.tsx';
-import * as $dashboard_playground_index from './routes/dashboard/playground/index.tsx';
+import * as $dashboard_playground from './routes/dashboard/playground.tsx';
+import * as $dashboard_profile from './routes/dashboard/profile.tsx';
+import * as $dashboard_settings from './routes/dashboard/settings.tsx';
 import * as $index from './routes/index.tsx';
-import * as $login from './routes/login.tsx';
 import * as $profile from './routes/profile.tsx';
 import * as $settings from './routes/settings.tsx';
 import * as $settings_index from './routes/settings/index.tsx';
-import * as $signup from './routes/signup.tsx';
 import * as $tools from './routes/tools.tsx';
 import * as $tools_form_filler from './routes/tools/form-filler.tsx';
 import * as $tools_monitor from './routes/tools/monitor.tsx';
@@ -41,63 +48,8 @@ import * as $tools_pdf from './routes/tools/pdf.tsx';
 import * as $tools_scraper from './routes/tools/scraper.tsx';
 import * as $tools_screenshot from './routes/tools/screenshot.tsx';
 import * as $tools_seo from './routes/tools/seo.tsx';
-import * as $ws_agents_chat from './routes/ws/agents/chat.ts';
-import * as $AgentEvaluationTable from './islands/AgentEvaluationTable.tsx';
-import * as $AgentMetricsCard from './islands/AgentMetricsCard.tsx';
-import * as $AgentPerformanceChart from './islands/AgentPerformanceChart.tsx';
-import * as $AnimatedBackground from './islands/AnimatedBackground.tsx';
-import * as $CreateAgentFlow from './islands/CreateAgentFlow.tsx';
-import * as $CreateAgentSteps_ConfigurationStep from './islands/CreateAgentSteps/ConfigurationStep.tsx';
-import * as $CreateAgentSteps_ConfirmationStep from './islands/CreateAgentSteps/ConfirmationStep.tsx';
-import * as $CreateAgentSteps_DeploymentStep from './islands/CreateAgentSteps/DeploymentStep.tsx';
-import * as $CreateAgentSteps_EvaluationStep from './islands/CreateAgentSteps/EvaluationStep.tsx';
-import * as $CreateAgentSteps_IndustryStep from './islands/CreateAgentSteps/IndustryStep.tsx';
-import * as $CreateAgentSteps_ModelConfigStep from './islands/CreateAgentSteps/ModelConfigStep.tsx';
-import * as $CreateAgentSteps_ModelsStep from './islands/CreateAgentSteps/ModelsStep.tsx';
-import * as $CreateAgentSteps_PromptStep from './islands/CreateAgentSteps/PromptStep.tsx';
-import * as $CreateAgentSteps_SystemPromptStep from './islands/CreateAgentSteps/SystemPromptStep.tsx';
-import * as $CreateAgentSteps_TemplateStep from './islands/CreateAgentSteps/TemplateStep.tsx';
-import * as $CreateAgentSteps_ToolsStep from './islands/CreateAgentSteps/ToolsStep.tsx';
-import * as $DashboardContent from './islands/DashboardContent.tsx';
-import * as $DashboardTabs from './islands/DashboardTabs.tsx';
-import * as $DeployAgent from './islands/DeployAgent.tsx';
-import * as $DeploymentIsland from './islands/DeploymentIsland.tsx';
-import * as $Examples from './islands/Examples.tsx';
-import * as $FeatureHighlight from './islands/FeatureHighlight.tsx';
-import * as $LoadingStateIsland from './islands/LoadingStateIsland.tsx';
-import * as $MetricsGraph from './islands/MetricsGraph.tsx';
-import * as $MetricsPage from './islands/MetricsPage.tsx';
-import * as $ModelsPage from './islands/ModelsPage.tsx';
-import * as $RTCMetricsConnection from './islands/RTCMetricsConnection.tsx';
-import * as $agents_Chat from './islands/agents/Chat.tsx';
-import * as $agents_jeff_JeffPage from './islands/agents/jeff/JeffPage.tsx';
-import * as $agents_jeff_JeffWidget from './islands/agents/jeff/JeffWidget.tsx';
-import * as $agents_maia_MaiaPage from './islands/agents/maia/MaiaPage.tsx';
-import * as $agents_maia_MaiaWebTools from './islands/agents/maia/MaiaWebTools.tsx';
-import * as $agents_maia_MaiaWidget from './islands/agents/maia/MaiaWidget.tsx';
-import * as $agents_maia_tools_WebTools from './islands/agents/maia/tools/WebTools.tsx';
-import * as $agents_petunia_PetuniaPage from './islands/agents/petunia/PetuniaPage.tsx';
-import * as $agents_petunia_PetuniaWidget from './islands/agents/petunia/PetuniaWidget.tsx';
-import * as $auth_LoginForm from './islands/auth/LoginForm.tsx';
-import * as $components_AgentMetricsPanel from './islands/components/AgentMetricsPanel.tsx';
-import * as $components_ChatMessage from './islands/components/ChatMessage.tsx';
-import * as $dashboard_AgentDetails from './islands/dashboard/AgentDetails.tsx';
-import * as $dashboard_AgentMetricsDashboard from './islands/dashboard/AgentMetricsDashboard.tsx';
-import * as $dashboard_AnalyticsDashboard from './islands/dashboard/AnalyticsDashboard.tsx';
-import * as $dashboard_CreateAgent from './islands/dashboard/CreateAgent.tsx';
-import * as $dashboard_DashboardNavigation from './islands/dashboard/DashboardNavigation.tsx';
-import * as $dashboard_MetricsPanel from './islands/dashboard/MetricsPanel.tsx';
-import * as $dashboard_Overview from './islands/dashboard/Overview.tsx';
-import * as $dashboard_Playground from './islands/dashboard/Playground.tsx';
-import * as $dashboard_components_charts_LineChart from './islands/dashboard/components/charts/LineChart.tsx';
-import * as $interfaces_AgentConfig from './islands/interfaces/AgentConfig.tsx';
-import * as $interfaces_AuthComponent from './islands/interfaces/AuthComponent.tsx';
-import * as $interfaces_JeffChat from './islands/interfaces/JeffChat.tsx';
-import * as $interfaces_MaiaChat from './islands/interfaces/MaiaChat.tsx';
-import * as $interfaces_PetuniaChat from './islands/interfaces/PetuniaChat.tsx';
-import * as $tools_WebTools from './islands/tools/WebTools.tsx';
-import * as $types_chat from './islands/types/chat.ts';
-import { type Manifest } from '$fresh/server.ts';
+import * as $MaiaWidget from './islands/agents/maia/MaiaWidget.tsx';
+import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
   routes: {
@@ -106,15 +58,22 @@ const manifest = {
     './routes/_layout.tsx': $_layout,
     './routes/_middleware.ts': $_middleware,
     './routes/about.tsx': $about,
-    './routes/api/auth/[...path].ts': $api_auth_path_,
+    './routes/admin/index.tsx': $admin_index,
+    './routes/api/chat/maia.ts': $api_chat_maia,
     './routes/api/dashboard.ts': $api_dashboard,
     './routes/api/index.ts': $api_index,
     './routes/api/profile.ts': $api_profile,
     './routes/api/settings.ts': $api_settings,
-    './routes/auth/login.tsx': $auth_login,
-    './routes/auth/signup.tsx': $auth_signup,
-    './routes/components/SignupForm.tsx': $components_SignupForm,
+    './routes/api/health.ts': $api_health,
+    './routes/api/health/islands.ts': $api_health_islands,
+    './routes/api/health/metrics.ts': $api_health_metrics,
+    './routes/api/metrics/index.ts': $api_metrics_index,
+    './routes/api/metrics/verify.ts': $api_metrics_verify,
+    './routes/api/metrics/record.ts': $api_metrics_record,
+    './routes/api/models.ts': $api_models,
+    './routes/api/ping.ts': $api_ping,
     './routes/contact.tsx': $contact,
+    './routes/dashboard.tsx': $dashboard,
     './routes/dashboard/_layout.tsx': $dashboard_layout,
     './routes/dashboard/agents/[id].tsx': $dashboard_agents_id_,
     './routes/dashboard/agents/deploy/[agentId].tsx': $dashboard_agents_deploy_agentId_,
@@ -126,13 +85,13 @@ const manifest = {
     './routes/dashboard/metrics/index.tsx': $dashboard_metrics_index,
     './routes/dashboard/models/index.tsx': $dashboard_models_index,
     './routes/dashboard/monitoring/index.tsx': $dashboard_monitoring_index,
-    './routes/dashboard/playground/index.tsx': $dashboard_playground_index,
+    './routes/dashboard/playground.tsx': $dashboard_playground,
+    './routes/dashboard/profile.tsx': $dashboard_profile,
+    './routes/dashboard/settings.tsx': $dashboard_settings,
     './routes/index.tsx': $index,
-    './routes/login.tsx': $login,
     './routes/profile.tsx': $profile,
     './routes/settings.tsx': $settings,
     './routes/settings/index.tsx': $settings_index,
-    './routes/signup.tsx': $signup,
     './routes/tools.tsx': $tools,
     './routes/tools/form-filler.tsx': $tools_form_filler,
     './routes/tools/monitor.tsx': $tools_monitor,
@@ -140,64 +99,9 @@ const manifest = {
     './routes/tools/scraper.tsx': $tools_scraper,
     './routes/tools/screenshot.tsx': $tools_screenshot,
     './routes/tools/seo.tsx': $tools_seo,
-    './routes/ws/agents/chat.ts': $ws_agents_chat,
   },
   islands: {
-    './islands/AgentEvaluationTable.tsx': $AgentEvaluationTable,
-    './islands/AgentMetricsCard.tsx': $AgentMetricsCard,
-    './islands/AgentPerformanceChart.tsx': $AgentPerformanceChart,
-    './islands/AnimatedBackground.tsx': $AnimatedBackground,
-    './islands/CreateAgentFlow.tsx': $CreateAgentFlow,
-    './islands/CreateAgentSteps/ConfigurationStep.tsx': $CreateAgentSteps_ConfigurationStep,
-    './islands/CreateAgentSteps/ConfirmationStep.tsx': $CreateAgentSteps_ConfirmationStep,
-    './islands/CreateAgentSteps/DeploymentStep.tsx': $CreateAgentSteps_DeploymentStep,
-    './islands/CreateAgentSteps/EvaluationStep.tsx': $CreateAgentSteps_EvaluationStep,
-    './islands/CreateAgentSteps/IndustryStep.tsx': $CreateAgentSteps_IndustryStep,
-    './islands/CreateAgentSteps/ModelConfigStep.tsx': $CreateAgentSteps_ModelConfigStep,
-    './islands/CreateAgentSteps/ModelsStep.tsx': $CreateAgentSteps_ModelsStep,
-    './islands/CreateAgentSteps/PromptStep.tsx': $CreateAgentSteps_PromptStep,
-    './islands/CreateAgentSteps/SystemPromptStep.tsx': $CreateAgentSteps_SystemPromptStep,
-    './islands/CreateAgentSteps/TemplateStep.tsx': $CreateAgentSteps_TemplateStep,
-    './islands/CreateAgentSteps/ToolsStep.tsx': $CreateAgentSteps_ToolsStep,
-    './islands/DashboardContent.tsx': $DashboardContent,
-    './islands/DashboardTabs.tsx': $DashboardTabs,
-    './islands/DeployAgent.tsx': $DeployAgent,
-    './islands/DeploymentIsland.tsx': $DeploymentIsland,
-    './islands/Examples.tsx': $Examples,
-    './islands/FeatureHighlight.tsx': $FeatureHighlight,
-    './islands/LoadingStateIsland.tsx': $LoadingStateIsland,
-    './islands/MetricsGraph.tsx': $MetricsGraph,
-    './islands/MetricsPage.tsx': $MetricsPage,
-    './islands/ModelsPage.tsx': $ModelsPage,
-    './islands/RTCMetricsConnection.tsx': $RTCMetricsConnection,
-    './islands/agents/Chat.tsx': $agents_Chat,
-    './islands/agents/jeff/JeffPage.tsx': $agents_jeff_JeffPage,
-    './islands/agents/jeff/JeffWidget.tsx': $agents_jeff_JeffWidget,
-    './islands/agents/maia/MaiaPage.tsx': $agents_maia_MaiaPage,
-    './islands/agents/maia/MaiaWebTools.tsx': $agents_maia_MaiaWebTools,
-    './islands/agents/maia/MaiaWidget.tsx': $agents_maia_MaiaWidget,
-    './islands/agents/maia/tools/WebTools.tsx': $agents_maia_tools_WebTools,
-    './islands/agents/petunia/PetuniaPage.tsx': $agents_petunia_PetuniaPage,
-    './islands/agents/petunia/PetuniaWidget.tsx': $agents_petunia_PetuniaWidget,
-    './islands/auth/LoginForm.tsx': $auth_LoginForm,
-    './islands/components/AgentMetricsPanel.tsx': $components_AgentMetricsPanel,
-    './islands/components/ChatMessage.tsx': $components_ChatMessage,
-    './islands/dashboard/AgentDetails.tsx': $dashboard_AgentDetails,
-    './islands/dashboard/AgentMetricsDashboard.tsx': $dashboard_AgentMetricsDashboard,
-    './islands/dashboard/AnalyticsDashboard.tsx': $dashboard_AnalyticsDashboard,
-    './islands/dashboard/CreateAgent.tsx': $dashboard_CreateAgent,
-    './islands/dashboard/DashboardNavigation.tsx': $dashboard_DashboardNavigation,
-    './islands/dashboard/MetricsPanel.tsx': $dashboard_MetricsPanel,
-    './islands/dashboard/Overview.tsx': $dashboard_Overview,
-    './islands/dashboard/Playground.tsx': $dashboard_Playground,
-    './islands/dashboard/components/charts/LineChart.tsx': $dashboard_components_charts_LineChart,
-    './islands/interfaces/AgentConfig.tsx': $interfaces_AgentConfig,
-    './islands/interfaces/AuthComponent.tsx': $interfaces_AuthComponent,
-    './islands/interfaces/JeffChat.tsx': $interfaces_JeffChat,
-    './islands/interfaces/MaiaChat.tsx': $interfaces_MaiaChat,
-    './islands/interfaces/PetuniaChat.tsx': $interfaces_PetuniaChat,
-    './islands/tools/WebTools.tsx': $tools_WebTools,
-    './islands/types/chat.ts': $types_chat,
+    './islands/agents/maia/MaiaWidget.tsx': $MaiaWidget,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

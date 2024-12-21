@@ -1,5 +1,5 @@
-import { h } from "preact";
-import { useEffect, useState } from "preact/hooks";
+import { h } from "https://esm.sh/preact";
+import { useEffect, useState } from "https://esm.sh/preact/hooks";
 import { IS_BROWSER } from "$fresh/runtime.ts";
 import { fetchWithCache } from "../../utils/fetch-utils.ts";
 
@@ -280,16 +280,19 @@ export default function AnalyticsDashboard({
   layout: initialLayout,
   connectionStatus 
 }: AnalyticsProps) {
+  // Return early if not in browser
+  if (!IS_BROWSER) {
+    return <AnalyticsDashboardContent analytics={initialAnalytics} error={null} />;
+  }
+
   const [analytics, setAnalytics] = useState<AnalyticsData>(initialAnalytics);
   const [layout, setLayout] = useState<DashboardLayout>(initialLayout);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!IS_BROWSER) return;
-
     const fetchAnalytics = async () => {
       try {
-        const response = await fetchWithCache<AnalyticsResponse>('/api/analytics');
+        const response = await fetchWithCache<AnalyticsResponse>("/api/analytics");
         if (response.analytics) {
           setAnalytics(response.analytics);
         }
@@ -298,8 +301,8 @@ export default function AnalyticsDashboard({
         }
         setError(null);
       } catch (err) {
-        console.error('Error fetching analytics:', err);
-        setError('Failed to fetch analytics data');
+        console.error("Error fetching analytics:", err);
+        setError("Failed to fetch analytics data");
       }
     };
 
@@ -311,10 +314,6 @@ export default function AnalyticsDashboard({
 
     return () => clearInterval(intervalId);
   }, []);
-
-  if (!IS_BROWSER) {
-    return <AnalyticsDashboardContent analytics={initialAnalytics} error={null} />;
-  }
 
   return <AnalyticsDashboardContent analytics={analytics} error={error} />;
 }

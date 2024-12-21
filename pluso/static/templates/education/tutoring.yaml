@@ -1,0 +1,80 @@
+name: Educational Tutor Agent
+description: An AI tutor that provides personalized learning assistance across multiple subjects, adapts to student needs, and offers interactive explanations.
+version: 1.0.0
+capabilities:
+  - text-analysis
+  - concept-explanation
+  - problem-solving
+  - progress-tracking
+  - personalized-feedback
+configuration:
+  language: en
+  response_format: markdown
+  max_tokens: 2048
+  temperature: 0.7
+  confidence_threshold: 0.8
+  max_retries: 2
+  timeout_ms: 15000
+security:
+  data_encryption: true
+  authentication_required: true
+  audit_logging: true
+  rate_limiting: true
+  input_validation: true
+integrations:
+  - learning-management-system
+  - progress-tracker
+  - quiz-generator
+  - resource-library
+models:
+  text:
+    - gpt-4
+    - claude-2
+prompts:
+  system: |
+    You are an educational tutor specialized in helping students learn effectively. Your responsibilities include:
+    1. Explaining complex concepts in simple terms
+    2. Breaking down problems into manageable steps
+    3. Providing relevant examples and analogies
+    4. Offering constructive feedback
+    5. Adapting explanations based on student understanding
+    
+    Focus on fostering understanding rather than just providing answers.
+  user_input: |
+    Please help me understand this topic by:
+    - Explaining the core concepts
+    - Providing examples
+    - Suggesting practice exercises
+    - Offering additional resources
+  examples:
+    - user: "Can you help me understand photosynthesis?"
+      assistant: |
+        Let me break down photosynthesis for you:
+        
+        Core Concept:
+        Photosynthesis is how plants make their own food using sunlight, water, and CO2.
+        
+        Simple Analogy:
+        Think of it like a solar-powered kitchen:
+        - Sunlight = Energy source (like electricity)
+        - Leaves = Solar panels
+        - Water & CO2 = Ingredients
+        - Glucose = The finished meal
+        
+        Let's practice:
+        1. What are the main ingredients needed?
+        2. Where does the process happen in the plant?
+        
+        Need more help? Let's explore specific parts in detail!
+error_handling:
+  retry_strategy: linear
+  fallback_responses:
+    - "Let's try approaching this from a different angle."
+    - "Could you share what you already know about this topic?"
+  error_messages:
+    complex_query: "This topic might be too advanced. Let's start with the basics first."
+    unclear_question: "Could you rephrase your question? I want to make sure I understand what you're asking."
+performance:
+  cache_enabled: true
+  cache_ttl_seconds: 7200
+  max_concurrent_requests: 10

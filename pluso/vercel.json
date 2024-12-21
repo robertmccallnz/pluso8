@@ -1,0 +1,12 @@
+{
+  "buildCommand": "deno task build",
+  "devCommand": "deno task start",
+  "installCommand": "curl -fsSL https://deno.land/x/install/install.sh | sh",
+  "framework": "fresh",
+  "regions": ["sfo1"],
+  "functions": {
+    "api/**/*": {
+      "runtime": "vercel-deno@1.0.0"
+    }
+  }
+}

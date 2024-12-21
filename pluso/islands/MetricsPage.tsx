@@ -1,5 +1,6 @@
 import { IS_BROWSER } from "$fresh/runtime.ts";
-import { signal } from "@preact/signals";
+import { signal } from "https://esm.sh/@preact/signals";
+import { useEffect } from "https://esm.sh/preact/hooks";
 import { COLORS, TYPOGRAPHY, COMPONENTS } from "../lib/constants/styles.ts";
 import { Chart } from "../utils/chart.ts";
 import { AgentMetrics } from "../core/metrics/types.ts";
@@ -14,7 +15,7 @@ export const chartInstance = signal<Chart | null>(null);
 export const metricsError = signal<string | null>(null);
 
 export default function MetricsPageIsland({ initialMetrics }: MetricsPageIslandProps) {
-  if (!IS_BROWSER) {
+  if (typeof window === "undefined") {
     return null;
   }
 

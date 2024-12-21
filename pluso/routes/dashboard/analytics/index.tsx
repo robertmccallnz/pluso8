@@ -1,7 +1,7 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { h } from "preact";
 import AnalyticsDashboard from "../../../islands/dashboard/AnalyticsDashboard.tsx";
-import Layout from "../../../routes/_layout.tsx";
+import DashboardLayout from "../_layout.tsx";
 import SEO from "../../../components/SEO.tsx";
 
 interface AnalyticsData {
@@ -38,9 +38,46 @@ interface Data {
   error?: string;
 }
 
+// Mock data for development
+const mockAnalytics: AnalyticsData = {
+  totalRequests: 1000,
+  avgLatency: 250,
+  successRate: 98.5,
+  errorRate: 1.5,
+  topAgents: [
+    { id: "1", name: "Customer Service Bot", requests: 500, successRate: 99.0 },
+    { id: "2", name: "Sales Assistant", requests: 300, successRate: 98.0 },
+    { id: "3", name: "Support Agent", requests: 200, successRate: 97.5 }
+  ],
+  requestsOverTime: Array.from({ length: 24 }, (_, i) => ({
+    timestamp: new Date(Date.now() - i * 3600000).toISOString(),
+    count: Math.floor(Math.random() * 50) + 20
+  })).reverse()
+};
+
+const mockLayout: DashboardLayout = {
+  id: "default",
+  name: "Default Layout",
+  panels: [
+    { id: "requests", type: "metric", title: "Total Requests", data: null },
+    { id: "latency", type: "metric", title: "Average Latency", data: null },
+    { id: "success", type: "metric", title: "Success Rate", data: null },
+    { id: "chart", type: "chart", title: "Requests Over Time", data: null },
+    { id: "agents", type: "table", title: "Top Performing Agents", data: null }
+  ]
+};
+
 export const handler: Handlers<Data> = {
   async GET(req, ctx) {
     try {
+      // For development, return mock data
+      return ctx.render({
+        analytics: mockAnalytics,
+        layout: mockLayout
+      });
+      
+      // TODO: Implement real API call when backend is ready
+      /*
       const url = new URL(req.url);
       const apiUrl = new URL("/api/analytics", url.origin);
       const response = await fetch(apiUrl.toString());
@@ -50,35 +87,14 @@ export const handler: Handlers<Data> = {
       }
 
       const data = await response.json();
-      
-      if (!data || typeof data !== 'object') {
-        throw new Error('Invalid response format');
-      }
-
-      const { analytics, layout } = data;
-
-      if (!analytics || !layout) {
-        throw new Error('Missing required data in response');
-      }
-
-      return ctx.render({ analytics, layout });
+      return ctx.render(data);
+      */
     } catch (error) {
       console.error("Error fetching analytics:", error);
       return ctx.render({ 
-        analytics: {
-          totalRequests: 0,
-          avgLatency: 0,
-          successRate: 0,
-          errorRate: 0,
-          topAgents: [],
-          requestsOverTime: [],
-        },
-        layout: {
-          id: "error",
-          name: "Error",
-          panels: [],
-        },
-        error: error instanceof Error ? error.message : "An unknown error occurred"
+        analytics: mockAnalytics,
+        layout: mockLayout,
+        error: error.message 
       });
     }
   }
@@ -134,4 +150,4 @@ export default function Analytics({ data }: PageProps<Data>) {
   );
 }
 
-Analytics.layout = Layout;
+Analytics.layout = DashboardLayout;

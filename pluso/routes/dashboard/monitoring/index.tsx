@@ -1,6 +1,7 @@
 import { PageProps } from "$fresh/server.ts";
 import AgentMetricsDashboard from "../../../islands/dashboard/AgentMetricsDashboard.tsx";
 import { AgentIndustry, AgentType } from "../../../agents/core/registry.ts";
+import DashboardLayout from "../_layout.tsx";
 
 export default function MonitoringPage(props: PageProps) {
   const searchParams = new URL(props.url).searchParams;
@@ -19,77 +20,68 @@ export default function MonitoringPage(props: PageProps) {
             class="border rounded p-2"
             value={view}
             onChange={(e) => {
-              const url = new URL(window.location.href);
-              url.searchParams.set("view", e.target.value);
-              window.location.href = url.toString();
+              const target = e.target as HTMLSelectElement;
+              const newUrl = new URL(window.location.href);
+              newUrl.searchParams.set("view", target.value);
+              window.history.pushState({}, "", newUrl.toString());
             }}
           >
-            <option value="all">All Agents</option>
-            <option value="industry">By Industry</option>
-            <option value="type">By Type</option>
-            <option value="agent">Single Agent</option>
+            <option value="all">All Metrics</option>
+            <option value="performance">Performance</option>
+            <option value="errors">Errors</option>
+            <option value="usage">Usage</option>
           </select>
 
-          {view === "industry" && (
-            <select
-              class="border rounded p-2"
-              value={industry || ""}
-              onChange={(e) => {
-                const url = new URL(window.location.href);
-                url.searchParams.set("industry", e.target.value);
-                window.location.href = url.toString();
-              }}
-            >
-              {Object.values(AgentIndustry).map((ind) => (
-                <option key={ind} value={ind}>
-                  {ind}
-                </option>
-              ))}
-            </select>
-          )}
+          <select
+            class="border rounded p-2"
+            value={industry || ""}
+            onChange={(e) => {
+              const target = e.target as HTMLSelectElement;
+              const newUrl = new URL(window.location.href);
+              if (target.value) {
+                newUrl.searchParams.set("industry", target.value);
+              } else {
+                newUrl.searchParams.delete("industry");
+              }
+              window.history.pushState({}, "", newUrl.toString());
+            }}
+          >
+            <option value="">All Industries</option>
+            <option value="tech">Technology</option>
+            <option value="finance">Finance</option>
+            <option value="healthcare">Healthcare</option>
+          </select>
 
-          {view === "type" && (
-            <select
-              class="border rounded p-2"
-              value={type || ""}
-              onChange={(e) => {
-                const url = new URL(window.location.href);
-                url.searchParams.set("type", e.target.value);
-                window.location.href = url.toString();
-              }}
-            >
-              {Object.values(AgentType).map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {view === "agent" && (
-            <select
-              class="border rounded p-2"
-              value={agentId || ""}
-              onChange={(e) => {
-                const url = new URL(window.location.href);
-                url.searchParams.set("agent", e.target.value);
-                window.location.href = url.toString();
-              }}
-            >
-              <option value="TECH_ASST_PETUNIA_0001">Petunia</option>
-              <option value="TECH_EVAL_JEFF_0001">Jeff</option>
-              <option value="TECH_RSCH_MAIA_0001">Maia</option>
-            </select>
-          )}
+          <select
+            class="border rounded p-2"
+            value={type || ""}
+            onChange={(e) => {
+              const target = e.target as HTMLSelectElement;
+              const newUrl = new URL(window.location.href);
+              if (target.value) {
+                newUrl.searchParams.set("type", target.value);
+              } else {
+                newUrl.searchParams.delete("type");
+              }
+              window.history.pushState({}, "", newUrl.toString());
+            }}
+          >
+            <option value="">All Types</option>
+            <option value="assistant">Assistant</option>
+            <option value="classifier">Classifier</option>
+            <option value="generator">Generator</option>
+          </select>
         </div>
       </div>
 
       <AgentMetricsDashboard
-        refreshInterval={5000}
-        selectedAgentId={view === "agent" ? agentId || undefined : undefined}
-        selectedIndustry={view === "industry" ? industry : undefined}
-        selectedType={view === "type" ? type : undefined}
+        view={view}
+        industry={industry}
+        type={type}
+        agentId={agentId}
       />
     </div>
   );
 }
+
+MonitoringPage.layout = DashboardLayout;

@@ -1,0 +1,50 @@
+name: Medical Report Analysis Agent
+description: Analyzes medical reports and clinical documentation
+version: 1.0.0
+
+capabilities:
+  - text_analysis
+  - image_analysis
+  - medical_terminology
+  - report_generation
+
+configuration:
+  language: en
+  response_format: structured
+  confidence_threshold: 0.85
+  max_report_length: 2000
+
+security:
+  data_encryption: true
+  phi_detection: true
+  audit_logging: true
+
+integrations:
+  - electronic_health_records
+  - medical_imaging_systems
+  - laboratory_systems
+
+models:
+  text:
+    - gpt-4
+    - claude-2
+  image:
+    - gpt-4-vision
+    - azure-vision
+
+prompts:
+  system: |
+    You are a medical report analysis assistant. Your role is to:
+    1. Analyze medical reports and clinical documentation
+    2. Extract key medical findings and diagnoses
+    3. Identify critical values and abnormalities
+    4. Generate structured summaries
+    Always maintain patient confidentiality and follow HIPAA guidelines.
+
+  user_input: |
+    Please analyze the provided medical report/image and:
+    - Extract key findings
+    - Highlight abnormal values
+    - Suggest potential diagnoses
+    - List any critical alerts
+    - Provide a structured summary

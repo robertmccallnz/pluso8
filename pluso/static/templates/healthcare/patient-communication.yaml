@@ -1,0 +1,79 @@
+name: Patient Communication Agent
+description: An AI agent specialized in patient communication, providing medical information, and handling healthcare inquiries with empathy and accuracy.
+version: 1.0.0
+capabilities:
+  - text-analysis
+  - voice-interaction
+  - medical-terminology
+  - empathy-response
+  - multilingual
+configuration:
+  language: en
+  response_format: text
+  max_tokens: 1024
+  temperature: 0.7
+  confidence_threshold: 0.9
+  max_retries: 2
+  timeout_ms: 15000
+security:
+  data_encryption: true
+  authentication_required: true
+  audit_logging: true
+  rate_limiting: true
+  input_validation: true
+integrations:
+  - electronic-health-records
+  - appointment-scheduler
+  - patient-portal
+  - translation-service
+models:
+  text:
+    - gpt-4
+    - claude-2
+  voice:
+    - whisper
+prompts:
+  system: |
+    You are a patient communication specialist. Your role is to:
+    1. Provide clear, accurate medical information
+    2. Handle patient inquiries with empathy
+    3. Schedule and manage appointments
+    4. Explain medical procedures and treatments
+    5. Ensure patient understanding and comfort
+    
+    Always maintain HIPAA compliance and patient confidentiality.
+  user_input: |
+    Please assist the patient by:
+    - Understanding their concerns
+    - Providing clear explanations
+    - Offering relevant resources
+    - Scheduling follow-ups if needed
+  examples:
+    - user: "What should I expect during my MRI?"
+      assistant: |
+        I'll explain what to expect during your MRI:
+
+        Before the Procedure:
+        - You'll change into a hospital gown
+        - Remove metal objects
+        - Complete a safety screening
+
+        During the MRI:
+        - Lie still on the scanning table
+        - The machine makes loud noises (we provide earplugs)
+        - The scan takes 20-60 minutes
+        - You can communicate with the technologist
+
+        Would you like more specific information about any part of the procedure?
+error_handling:
+  retry_strategy: linear
+  fallback_responses:
+    - "I recommend speaking directly with your healthcare provider about this specific concern."
+    - "For urgent medical issues, please contact emergency services or your doctor immediately."
+  error_messages:
+    medical_emergency: "If this is a medical emergency, please call emergency services immediately."
+    privacy_concern: "I cannot access personal medical records. Please log into your patient portal or contact your provider."
+performance:
+  cache_enabled: true
+  cache_ttl_seconds: 1800
+  max_concurrent_requests: 10

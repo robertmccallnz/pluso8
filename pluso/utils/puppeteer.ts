@@ -1,55 +1,89 @@
 import { Browser, Page } from "https://deno.land/x/puppeteer@16.2.0/mod.ts";
 import puppeteer from "https://deno.land/x/puppeteer@16.2.0/mod.ts";
 
+interface BrowserFingerprint {
+  userAgent: string;
+  platform: string;
+  vendor: string;
+}
+
 export class PuppeteerTools {
+  /**
+   * Creates a new page with specified fingerprint
+   * @param fingerprint Browser fingerprint to use
+   */
+  static async createPage(fingerprint?: BrowserFingerprint): Promise<Page> {
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const page = await browser.newPage();
+    
+    if (fingerprint) {
+      await page.setUserAgent(fingerprint.userAgent);
+      await page.evaluateOnNewDocument((fp) => {
+        Object.defineProperty(navigator, 'platform', { get: () => fp.platform });
+        Object.defineProperty(navigator, 'vendor', { get: () => fp.vendor });
+      }, fingerprint);
+    }
+    
+    return page;
+  }
+
   /**
    * Takes a screenshot of a webpage
    * @param url The URL to screenshot
    * @param outputPath Path to save the screenshot
    * @param fullPage Whether to capture the full scrollable page
+   * @param fingerprint Browser fingerprint to use
    */
-  static async takeScreenshot(url: string, outputPath: string, fullPage = false) {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
+  static async takeScreenshot(
+    url: string,
+    outputPath: string,
+    fullPage = false,
+    fingerprint?: BrowserFingerprint
+  ) {
+    const page = await this.createPage(fingerprint);
     await page.goto(url, { waitUntil: 'networkidle0' });
     await page.screenshot({ path: outputPath, fullPage });
-    await browser.close();
+    await page.browser().close();
   }
 
   /**
    * Generates a PDF of a webpage
    * @param url The URL to convert to PDF
    * @param outputPath Path to save the PDF
+   * @param fingerprint Browser fingerprint to use
    */
-  static async generatePDF(url: string, outputPath: string) {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
+  static async generatePDF(
+    url: string,
+    outputPath: string,
+    fingerprint?: BrowserFingerprint
+  ) {
+    const page = await this.createPage(fingerprint);
     await page.goto(url, { waitUntil: 'networkidle0' });
     await page.pdf({ path: outputPath, format: 'A4' });
-    await browser.close();
+    await page.browser().close();
   }
 
   /**
    * Extracts text content from a webpage using a CSS selector
    * @param url The URL to scrape
    * @param selector CSS selector to target elements
+   * @param fingerprint Browser fingerprint to use
    */
-  static async extractContent(url: string, selector: string): Promise<string[]> {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
+  static async extractContent(
+    url: string,
+    selector: string,
+    fingerprint?: BrowserFingerprint
+  ): Promise<string[]> {
+    const page = await this.createPage(fingerprint);
     await page.goto(url, { waitUntil: 'networkidle0' });
     
     const content = await page.$$eval(selector, elements => 
       elements.map(el => el.textContent?.trim() || '')
     );
     
-    await browser.close();
+    await page.browser().close();
     return content;
   }
 
@@ -58,16 +92,15 @@ export class PuppeteerTools {
    * @param url The URL with the form
    * @param formData Object containing selector-value pairs for form fields
    * @param submitSelector Selector for the submit button
+   * @param fingerprint Browser fingerprint to use
    */
   static async fillForm(
     url: string, 
     formData: Record<string, string>,
-    submitSelector: string
+    submitSelector: string,
+    fingerprint?: BrowserFingerprint
   ) {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
+    const page = await this.createPage(fingerprint);
     await page.goto(url, { waitUntil: 'networkidle0' });
 
     for (const [selector, value] of Object.entries(formData)) {
@@ -76,24 +109,22 @@ export class PuppeteerTools {
 
     await page.click(submitSelector);
     await page.waitForNavigation();
-    await browser.close();
+    await page.browser().close();
   }
 
   /**
    * Monitors page load performance metrics
    * @param url The URL to monitor
+   * @param fingerprint Browser fingerprint to use
    */
-  static async getPerformanceMetrics(url: string) {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
-    
+  static async getPerformanceMetrics(
+    url: string,
+    fingerprint?: BrowserFingerprint
+  ) {
+    const page = await this.createPage(fingerprint);
     await page.goto(url, { waitUntil: 'networkidle0' });
-    
     const metrics = await page.metrics();
-    await browser.close();
-    
+    await page.browser().close();
     return metrics;
   }
 
@@ -101,12 +132,14 @@ export class PuppeteerTools {
    * Checks if specific meta tags exist and extracts their content
    * @param url The URL to check
    * @param metaTags Array of meta tag names to check
+   * @param fingerprint Browser fingerprint to use
    */
-  static async analyzeSEOMetaTags(url: string, metaTags: string[]) {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
+  static async analyzeSEOMetaTags(
+    url: string,
+    metaTags: string[],
+    fingerprint?: BrowserFingerprint
+  ) {
+    const page = await this.createPage(fingerprint);
     await page.goto(url, { waitUntil: 'networkidle0' });
 
     const results: Record<string, string | null> = {};
@@ -120,39 +153,78 @@ export class PuppeteerTools {
       results[tag] = content;
     }
 
-    await browser.close();
+    await page.browser().close();
     return results;
   }
 
   /**
-   * Monitors network requests during page load
+   * Monitors page for errors and network issues
    * @param url The URL to monitor
+   * @param timeout Timeout in milliseconds
+   * @param fingerprint Browser fingerprint to use
    */
-  static async monitorNetworkRequests(url: string) {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+  static async monitorPageErrors(
+    url: string,
+    timeout = 30000,
+    fingerprint?: BrowserFingerprint
+  ): Promise<{
+    errors: string[];
+    networkErrors: string[];
+    consoleMessages: { type: string; text: string }[];
+    responseStatus: number | null;
+  }> {
+    const page = await this.createPage(fingerprint);
+    
+    const errors: string[] = [];
+    const networkErrors: string[] = [];
+    const consoleMessages: { type: string; text: string }[] = [];
+    let responseStatus: number | null = null;
+
+    page.on('error', err => errors.push(err.message));
+    page.on('pageerror', err => errors.push(err.message));
+    page.on('requestfailed', request => 
+      networkErrors.push(`${request.url()} failed: ${request.failure()?.errorText}`)
+    );
+    page.on('console', msg => 
+      consoleMessages.push({ type: msg.type(), text: msg.text() })
+    );
+    page.on('response', response => {
+      if (response.url() === url) {
+        responseStatus = response.status();
+      }
     });
-    const page = await browser.newPage();
-    
-    const requests: string[] = [];
-    page.on('request', request => requests.push(request.url()));
-    
-    await page.goto(url, { waitUntil: 'networkidle0' });
-    await browser.close();
-    
-    return requests;
+
+    try {
+      await page.goto(url, { 
+        waitUntil: 'networkidle0',
+        timeout 
+      });
+    } catch (error) {
+      errors.push(error.message);
+    }
+
+    await page.browser().close();
+
+    return {
+      errors,
+      networkErrors,
+      consoleMessages,
+      responseStatus
+    };
   }
 
   /**
-   * Tests if elements are visible and clickable
+   * Tests accessibility of elements on a webpage
    * @param url The URL to test
    * @param selectors Array of CSS selectors to test
+   * @param fingerprint Browser fingerprint to use
    */
-  static async testElementsAccessibility(url: string, selectors: string[]) {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
+  static async testElementsAccessibility(
+    url: string,
+    selectors: string[],
+    fingerprint?: BrowserFingerprint
+  ) {
+    const page = await this.createPage(fingerprint);
     await page.goto(url, { waitUntil: 'networkidle0' });
 
     const results: Record<string, { visible: boolean; clickable: boolean }> = {};
@@ -177,207 +249,7 @@ export class PuppeteerTools {
       results[selector] = { visible, clickable };
     }
 
-    await browser.close();
-    return results;
-  }
-
-  /**
-   * Monitors page for errors and network issues
-   * @param url The URL to monitor
-   * @param timeout Timeout in milliseconds
-   */
-  static async monitorPageErrors(url: string, timeout = 30000): Promise<{
-    errors: string[];
-    networkErrors: string[];
-    consoleMessages: { type: string; text: string }[];
-    responseStatus: number | null;
-  }> {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
-    
-    const errors: string[] = [];
-    const networkErrors: string[] = [];
-    const consoleMessages: { type: string; text: string }[] = [];
-    let responseStatus: number | null = null;
-
-    // Monitor page errors
-    page.on('pageerror', error => {
-      errors.push(error.message);
-    });
-
-    // Monitor console messages
-    page.on('console', msg => {
-      consoleMessages.push({
-        type: msg.type(),
-        text: msg.text()
-      });
-    });
-
-    // Monitor network errors
-    page.on('requestfailed', request => {
-      networkErrors.push(`${request.url()} failed: ${request.failure()?.errorText || 'unknown error'}`);
-    });
-
-    try {
-      const response = await page.goto(url, {
-        waitUntil: 'networkidle0',
-        timeout
-      });
-      responseStatus = response?.status() || null;
-
-      // Get page content for error analysis
-      const content = await page.content();
-      if (content.includes('Internal Server Error') || content.includes('Error 500')) {
-        errors.push('Found 500 Internal Server Error in page content');
-      }
-
-      // Try to find error messages in the DOM
-      const errorMessages = await page.evaluate(() => {
-        const messages: string[] = [];
-        // Look for common error message elements
-        document.querySelectorAll('.error-message, .alert-error, [role="alert"], pre').forEach(el => {
-          const text = el.textContent?.trim();
-          if (text) messages.push(text);
-        });
-        return messages;
-      });
-
-      if (errorMessages.length > 0) {
-        errors.push(...errorMessages);
-      }
-
-    } catch (error) {
-      errors.push(`Navigation error: ${error.message}`);
-    }
-
-    await browser.close();
-    return { errors, networkErrors, consoleMessages, responseStatus };
-  }
-
-  /**
-   * Analyzes SEO-related links on a webpage
-   * @param url The URL to analyze
-   */
-  static async analyzeSEOLinks(url: string) {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle0' });
-    
-    const links = await page.evaluate(() => {
-      const allLinks = Array.from(document.querySelectorAll('a'));
-      const currentHost = window.location.host;
-      
-      let internal = 0;
-      let external = 0;
-      let broken = 0;
-      
-      allLinks.forEach(link => {
-        const href = link.href;
-        if (!href) return;
-        
-        try {
-          const url = new URL(href);
-          if (url.host === currentHost) {
-            internal++;
-          } else {
-            external++;
-          }
-        } catch {
-          broken++;
-        }
-      });
-      
-      return { internal, external, broken };
-    });
-    
-    await browser.close();
-    return links;
-  }
-
-  /**
-   * Analyzes images on a webpage for SEO
-   * @param url The URL to analyze
-   */
-  static async analyzeSEOImages(url: string) {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle0' });
-    
-    const imageStats = await page.evaluate(() => {
-      const images = Array.from(document.querySelectorAll('img'));
-      const total = images.length;
-      const withAlt = images.filter(img => img.hasAttribute('alt') && img.getAttribute('alt')?.trim() !== '').length;
-      
-      return {
-        total,
-        withAlt,
-        withoutAlt: total - withAlt
-      };
-    });
-    
-    await browser.close();
-    return imageStats;
-  }
-
-  /**
-   * Tests accessibility of elements on a webpage
-   * @param url The URL to test
-   * @param selectors Array of CSS selectors to test
-   */
-  static async testElementsAccessibility(url: string, selectors: string[]) {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle0' });
-
-    const results: Record<string, { visible: boolean; clickable: boolean }> = {};
-    
-    for (const selector of selectors) {
-      try {
-        const elements = await page.$$(selector);
-        if (elements.length === 0) {
-          results[selector] = { visible: false, clickable: false };
-          continue;
-        }
-
-        const visibilityPromises = elements.map(el => 
-          page.evaluate(el => {
-            const style = window.getComputedStyle(el);
-            return style.display !== 'none' && 
-                   style.visibility !== 'hidden' && 
-                   style.opacity !== '0';
-          }, el)
-        );
-
-        const clickabilityPromises = elements.map(el =>
-          page.evaluate(el => {
-            const rect = el.getBoundingClientRect();
-            return rect.width > 0 && 
-                   rect.height > 0 && 
-                   !el.hasAttribute('disabled');
-          }, el)
-        );
-
-        const visibilityResults = await Promise.all(visibilityPromises);
-        const clickabilityResults = await Promise.all(clickabilityPromises);
-
-        results[selector] = {
-          visible: visibilityResults.some(v => v),
-          clickable: clickabilityResults.some(c => c)
-        };
-      } catch (error) {
-        results[selector] = { visible: false, clickable: false };
-      }
-    }
-    
-    await browser.close();
+    await page.browser().close();
     return results;
   }
 }

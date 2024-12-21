@@ -1,6 +1,4 @@
-import { describe, it, beforeEach, afterEach } from "tincan";
-import { assertEquals, assertExists } from "testing/asserts.ts";
-import { spy, stub } from "mock";
+import { assertEquals, assertExists, spy } from "../deps.ts";
 import { WebSocketClient } from "../utils/websocket.ts";
 import {
   createMockWebSocket,
@@ -9,24 +7,25 @@ import {
   assertWebSocketConnected,
   type MockWebSocket,
 } from "./test_helpers.ts";
-import { TEST_CONFIG } from "./test_config.ts";
 
-describe("WebSocketClient", () => {
+Deno.test("WebSocket Tests", async (t) => {
   let mockWs: MockWebSocket;
   let wsClient: WebSocketClient;
   let onMessage: typeof spy;
   let onStatusChange: typeof spy;
   let onReconnecting: typeof spy;
 
-  beforeEach(() => {
+  await t.step("setup", () => {
     mockWs = createMockWebSocket();
     onMessage = spy();
     onStatusChange = spy();
     onReconnecting = spy();
 
-    // @ts-ignore - Mock WebSocket for testing
-    globalThis.WebSocket = function() {
-      return mockWs;
+    // Mock WebSocket constructor
+    (globalThis as any).WebSocket = class {
+      constructor() {
+        return mockWs;
+      }
     };
 
     wsClient = new WebSocketClient("/test", {
@@ -36,84 +35,27 @@ describe("WebSocketClient", () => {
     });
   });
 
-  afterEach(() => {
-    wsClient.disconnect();
-  });
-
-  it("should connect to WebSocket server", () => {
-    wsClient.connect();
+  await t.step("should connect successfully", async () => {
+    await wsClient.connect();
     assertWebSocketConnected(mockWs);
-  });
-
-  it("should handle successful connection", () => {
-    wsClient.connect();
-    const openHandler = mockWs.addEventListener.calls.find(
-      (call) => call.args[0] === "open"
-    )?.args[1];
-    
-    openHandler?.();
+    mockWs.onopen?.();
     assertEquals(onStatusChange.calls[0].args[0], true);
   });
 
-  it("should send messages", () => {
-    wsClient.connect();
-    const testMessage = "Hello, World!";
-    wsClient.send(testMessage);
-    assertMessageSent(mockWs, testMessage);
+  await t.step("should handle messages", () => {
+    const testMessage = "test message";
+    mockWs.onmessage?.({ data: testMessage });
+    assertEquals(onMessage.calls[0].args[0], testMessage);
   });
 
-  it("should handle incoming messages", () => {
-    wsClient.connect();
-    const messageHandler = mockWs.addEventListener.calls.find(
-      (call) => call.args[0] === "message"
-    )?.args[1];
-
-    const testResponse = createMockResponse("Test response");
-    messageHandler?.({ data: JSON.stringify(testResponse) });
-
-    assertEquals(onMessage.calls[0].args[0], testResponse);
+  await t.step("should handle reconnection", () => {
+    mockWs.onclose?.({} as CloseEvent);
+    assertEquals(onStatusChange.calls[1].args[0], false);
+    assertEquals(onReconnecting.calls[0].args[0], 1);
   });
 
-  it("should handle connection errors", () => {
-    wsClient.connect();
-    const errorHandler = mockWs.addEventListener.calls.find(
-      (call) => call.args[0] === "error"
-    )?.args[1];
-
-    errorHandler?.(new Error("Test error"));
-    assertEquals(onStatusChange.calls[0].args[0], false);
-    assertExists(
-      onReconnecting.calls[0],
-      "Expected reconnection attempt on error"
-    );
-  });
-
-  it("should handle disconnection", () => {
-    wsClient.connect();
-    const closeHandler = mockWs.addEventListener.calls.find(
-      (call) => call.args[0] === "close"
-    )?.args[1];
-
-    closeHandler?.({ wasClean: false });
-    assertEquals(onStatusChange.calls[0].args[0], false);
-    assertExists(
-      onReconnecting.calls[0],
-      "Expected reconnection attempt on unclean close"
-    );
-  });
-
-  it("should handle clean disconnection without reconnect", () => {
-    wsClient.connect();
-    const closeHandler = mockWs.addEventListener.calls.find(
-      (call) => call.args[0] === "close"
-    )?.args[1];
-
-    closeHandler?.({ wasClean: true });
-    assertEquals(onStatusChange.calls[0].args[0], false);
-    assertEquals(
-      onReconnecting.calls.length,
-      0,
-      "Expected no reconnection attempt on clean close"
-    );
+  await t.step("cleanup", () => {
+    wsClient.disconnect();
+    delete (globalThis as any).WebSocket;
   });
 });

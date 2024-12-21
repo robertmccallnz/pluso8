@@ -1,6 +1,7 @@
-import { h } from "preact";
-import { assertEquals } from "$std/assert/mod.ts";
-import { renderToString } from "preact-render-to-string";
+// Removed import of `h` from `preact` as it's not needed in a Fresh project
+// import { h } from "../../path/to/preact";
+import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
+import { renderToString } from "https://esm.sh/preact-render-to-string";
 import AnalyticsDashboard from "../../islands/dashboard/AnalyticsDashboard.tsx";
 
 const mockAnalytics = {

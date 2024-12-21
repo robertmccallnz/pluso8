@@ -1,49 +1,71 @@
 import { Handlers } from "$fresh/server.ts";
+import { getCookies } from "https://deno.land/std@0.194.0/http/cookie.ts";
 
 export const handler: Handlers = {
-  async GET(req) {
-    // Check authentication
-    const cookies = req.headers.get('cookie');
-    const session = cookies?.includes('session=');
-    if (!session) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-    }
-
-    return new Response(JSON.stringify({
-      theme: 'light',
-      notifications: {
-        email: true,
-        push: false,
-        desktop: true
-      },
-      privacy: {
-        shareData: false,
-        analytics: true
-      },
-      language: 'en',
-      timezone: 'UTC'
-    }));
-  },
-
-  async PUT(req) {
-    // Check authentication
-    const cookies = req.headers.get('cookie');
-    const session = cookies?.includes('session=');
-    if (!session) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-    }
-
+  async GET(req, _ctx) {
     try {
-      const data = await req.json();
+      // Get token from cookie
+      const cookies = getCookies(req.headers);
+      const token = cookies["sb-auth-token"];
+
+      if (!token) {
+        return new Response(JSON.stringify({ error: "Not authenticated" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // For demo, return mock settings
       return new Response(JSON.stringify({
         success: true,
-        data
-      }));
+        settings: {
+          theme: "dark",
+          notifications: true,
+          language: "en",
+        }
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+
     } catch (error) {
-      return new Response(JSON.stringify({ 
-        success: false,
-        message: 'Invalid request'
-      }), { status: 400 });
+      return new Response(JSON.stringify({ error: "Server error" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  },
+
+  async POST(req, _ctx) {
+    try {
+      // Get token from cookie
+      const cookies = getCookies(req.headers);
+      const token = cookies["sb-auth-token"];
+
+      if (!token) {
+        return new Response(JSON.stringify({ error: "Not authenticated" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // Get settings from request body
+      const body = await req.json();
+
+      // For demo, just echo back the settings
+      return new Response(JSON.stringify({
+        success: true,
+        settings: body
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+
+    } catch (error) {
+      return new Response(JSON.stringify({ error: "Server error" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
   }
 };

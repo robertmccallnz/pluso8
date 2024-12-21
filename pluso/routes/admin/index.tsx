@@ -1,7 +1,6 @@
-import { Handlers, PageProps } from "$fresh/server.ts";
+import { PageProps } from "$fresh/server.ts";
 import { Head } from "$fresh/runtime.ts";
 import AdminDashboard from "../../islands/admin/AdminDashboard.tsx";
-import { supabaseAdmin } from "../../core/database/supabase/client.ts";
 
 interface AdminData {
   users: {
@@ -12,63 +11,52 @@ interface AdminData {
   agents: {
     total: number;
     active: number;
-    byType: Record<string, number>;
+    new: number;
   };
   metrics: {
-    totalRequests: number;
-    avgResponseTime: number;
-    errorRate: number;
-    costToDate: number;
+    total: number;
+    thisWeek: number;
+    lastWeek: number;
   };
-  systemStatus: {
-    cpu: number;
-    memory: number;
-    storage: number;
-    uptime: number;
+  revenue: {
+    total: number;
+    thisMonth: number;
+    lastMonth: number;
   };
 }
 
-export const handler: Handlers<AdminData> = {
-  async GET(req, ctx) {
-    // Check if user is admin
-    const cookies = req.headers.get('cookie');
-    const sessionToken = cookies?.match(/session=([^;]+)/)?.[1];
-    if (!sessionToken) {
-      return new Response('Unauthorized', { status: 401 });
-    }
-
-    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(sessionToken);
-    if (userError || !user?.user_metadata?.isAdmin) {
-      return new Response('Unauthorized', { status: 401 });
-    }
-
-    // Fetch all admin data
-    const [usersRes, agentsRes, metricsRes, systemRes] = await Promise.all([
-      fetch(`${req.url}/api/admin/users`),
-      fetch(`${req.url}/api/admin/agents`),
-      fetch(`${req.url}/api/admin/metrics`),
-      fetch(`${req.url}/api/admin/system`),
-    ]);
-
-    const [users, agents, metrics, systemStatus] = await Promise.all([
-      usersRes.json(),
-      agentsRes.json(),
-      metricsRes.json(),
-      systemRes.json(),
-    ]);
-
-    return ctx.render({ users, agents, metrics, systemStatus });
+const mockData: AdminData = {
+  users: {
+    total: 1000,
+    active: 750,
+    new: 50,
+  },
+  agents: {
+    total: 25,
+    active: 20,
+    new: 5,
+  },
+  metrics: {
+    total: 10000,
+    thisWeek: 2500,
+    lastWeek: 2000,
+  },
+  revenue: {
+    total: 50000,
+    thisMonth: 15000,
+    lastMonth: 12000,
   },
 };
 
-export default function AdminPage({ data }: PageProps<AdminData>) {
+export default function AdminPage(_props: PageProps) {
   return (
     <>
       <Head>
-        <title>PluSO Admin Dashboard</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" />
+        <title>Admin Dashboard</title>
       </Head>
-      <AdminDashboard {...data} />
+      <div class="min-h-screen bg-gray-100">
+        <AdminDashboard {...mockData} />
+      </div>
     </>
   );
 }

@@ -7,16 +7,21 @@
 /// <reference lib="deno.ns" />
 
 import { load } from "https://deno.land/std/dotenv/mod.ts";
-import "$std/dotenv/load.ts";
-
 import { start } from "$fresh/server.ts";
 import manifest from "./fresh.gen.ts";
 import config from "./fresh.config.ts";
 
-// Load environment variables
-await load({
-  export: true,
-  allowEmptyValues: true
-});
+try {
+  // Load environment variables
+  await load({
+    export: true,
+    allowEmptyValues: true,
+    defaults: {
+      DENO_ENV: "development"
+    }
+  });
+} catch (err) {
+  console.warn("Warning: Error loading .env file:", err.message);
+}
 
 await start(manifest, config);

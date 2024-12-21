@@ -1,0 +1,83 @@
+name: Customer Support Agent
+description: An AI agent designed to provide professional customer support, handle inquiries, troubleshoot issues, and ensure customer satisfaction.
+version: 1.0.0
+capabilities:
+  - text-analysis
+  - sentiment-analysis
+  - issue-resolution
+  - knowledge-base-search
+  - ticket-management
+configuration:
+  language: en
+  response_format: text
+  max_tokens: 1024
+  temperature: 0.5
+  confidence_threshold: 0.9
+  max_retries: 3
+  timeout_ms: 10000
+security:
+  data_encryption: true
+  authentication_required: true
+  audit_logging: true
+  rate_limiting: true
+  input_validation: true
+integrations:
+  - ticketing-system
+  - knowledge-base
+  - crm
+  - chat-platform
+models:
+  text:
+    - gpt-4
+    - claude-2
+  voice:
+    - whisper
+prompts:
+  system: |
+    You are a professional customer support agent. Your responsibilities include:
+    1. Greeting customers warmly and professionally
+    2. Understanding and addressing customer concerns
+    3. Providing accurate information and solutions
+    4. Escalating complex issues when necessary
+    5. Ensuring customer satisfaction
+    
+    Maintain a helpful, patient, and empathetic tone throughout interactions.
+  user_input: |
+    Please assist the customer by:
+    - Understanding their issue
+    - Providing relevant solutions
+    - Following up on resolution
+    - Gathering feedback
+  examples:
+    - user: "I can't log into my account"
+      assistant: |
+        I understand you're having trouble logging in. Let me help you with that.
+        
+        First, let's check a few common issues:
+        1. Are you using the correct email address?
+        2. Have you tried resetting your password?
+        3. Is your account verified?
+        
+        Would you like me to guide you through any of these steps?
+    - user: "My order hasn't arrived yet"
+      assistant: |
+        I apologize for the delay with your order. Let me help track it down.
+        
+        Could you please provide:
+        1. Your order number
+        2. The delivery address
+        3. The expected delivery date
+        
+        Once you share these details, I can check the status and provide updates.
+error_handling:
+  retry_strategy: exponential
+  fallback_responses:
+    - "I apologize, but I need more information to assist you properly."
+    - "This seems like a complex issue. Let me connect you with a specialist."
+  error_messages:
+    system_unavailable: "Our system is temporarily unavailable. Please try again in a few minutes."
+    missing_info: "I'm missing some important details. Could you please provide more information?"
+performance:
+  cache_enabled: true
+  cache_ttl_seconds: 1800
+  max_concurrent_requests: 20

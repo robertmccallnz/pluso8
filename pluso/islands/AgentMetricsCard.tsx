@@ -1,5 +1,6 @@
-import { useSignal } from "@preact/signals";
-import { useEffect } from "preact/hooks";
+import { h } from "https://esm.sh/preact";
+import { useSignal } from "https://esm.sh/@preact/signals";
+import { useEffect } from "https://esm.sh/preact/hooks";
 
 interface MetricsSummary {
   avgResponseTime: number;

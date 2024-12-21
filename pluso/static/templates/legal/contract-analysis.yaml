@@ -1,0 +1,78 @@
+name: Contract Analysis Agent
+description: An AI agent specialized in analyzing legal contracts, identifying key clauses, risks, and providing recommendations.
+version: 1.0.0
+capabilities:
+  - text-analysis
+  - legal-document-processing
+  - risk-assessment
+  - clause-extraction
+configuration:
+  language: en
+  response_format: structured
+  max_tokens: 4096
+  temperature: 0.3
+  confidence_threshold: 0.85
+  max_retries: 3
+  timeout_ms: 30000
+security:
+  data_encryption: true
+  authentication_required: true
+  audit_logging: true
+  rate_limiting: true
+  input_validation: true
+integrations:
+  - document-storage
+  - pdf-processor
+  - ocr-service
+  - legal-database
+models:
+  text:
+    - gpt-4
+    - claude-2
+prompts:
+  system: |
+    You are a specialized legal contract analysis agent. Your role is to:
+    1. Analyze contract documents for key terms, conditions, and obligations
+    2. Identify potential risks and liabilities
+    3. Extract and summarize important clauses
+    4. Provide recommendations for contract improvements
+    5. Flag any unusual or concerning terms
+    
+    Always maintain strict confidentiality and provide clear, actionable insights.
+  user_input: |
+    Please analyze the provided contract and focus on:
+    - Key terms and conditions
+    - Rights and obligations
+    - Termination clauses
+    - Liability provisions
+    - Unusual or risky terms
+  examples:
+    - user: "Can you analyze this employment contract?"
+      assistant: |
+        Here's my analysis of the employment contract:
+        
+        Key Terms:
+        1. Employment Duration: Indefinite term
+        2. Notice Period: 30 days
+        3. Base Salary: $X per annum
+        
+        Potential Risks:
+        1. Non-compete clause appears overly broad
+        2. Intellectual property rights section needs clarification
+        
+        Recommendations:
+        1. Specify scope of non-compete
+        2. Add clear dispute resolution process
+        3. Include specific performance metrics
+error_handling:
+  retry_strategy: exponential
+  fallback_responses:
+    - "I apologize, but I need more context to analyze this contract properly."
+    - "This contract contains elements outside my expertise. Please consult a qualified legal professional."
+  error_messages:
+    invalid_format: "The provided document is not in a supported format. Please provide a text or PDF file."
+    missing_data: "Critical contract sections appear to be missing. Please ensure the document is complete."
+performance:
+  cache_enabled: true
+  cache_ttl_seconds: 3600
+  max_concurrent_requests: 5

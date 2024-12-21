@@ -1,5 +1,6 @@
 import { signal } from "@preact/signals";
-import { AgentMetrics, MetricData, SystemMetrics } from "./types.ts";
+import { AgentMetrics, MetricData, SystemMetrics, MetricAlert } from "./types.ts";
+import db from "../database/client.ts";
 
 // Basic metrics interface for dashboard
 export interface DashboardMetrics {
@@ -9,7 +10,7 @@ export interface DashboardMetrics {
   userSatisfaction: number;
 }
 
-// Shared metrics state
+// Consolidated metrics state
 export const metricsState = {
   activeAgents: signal(0),
   totalConversations: signal(0),
@@ -60,6 +61,47 @@ export async function updateMetrics(): Promise<void> {
     metricsState.lastUpdate.value = new Date();
   } catch (error) {
     console.error("Failed to update metrics:", error);
+  }
+}
+
+export class MetricsManager {
+  private streams: Map<string, MetricStream> = new Map();
+  private alertHandlers: Set<(alert: MetricAlert) => void> = new Set();
+
+  async recordAgentMetric(agentId: string, metric: Partial<AgentMetrics>) {
+    const timestamp = Date.now();
+    const validation = this.validateAgentMetric(metric);
+    if (!validation.isValid) {
+      throw new Error(`Invalid metric data: ${validation.errors.map(e => e.message).join(', ')}`);
+    }
+    const { error } = await db
+      .from('agent_metrics')
+      .insert({
+        agent_id: agentId,
+        timestamp,
+        response_time: metric.responseTime || 0,
+        success: metric.success || false,
+        error_count: metric.errorCount || 0,
+        conversation_id: metric.conversationId || '',
+        tokens_used: metric.tokensUsed || 0,
+        cost: metric.cost || 0,
+      });
+    if (error) {
+      throw new Error(`Failed to store metric: ${error.message}`);
+    }
+    const stream = this.streams.get(agentId);
+    if (stream) {
+      stream.onMetric({
+        ...metric,
+        timestamp,
+        agentId
+      });
+    }
+  }
+
+  validateAgentMetric(metric: Partial<AgentMetrics>): MetricValidation {
+    // Add validation logic here
+    return { isValid: true, errors: [] };
   }
 }
 

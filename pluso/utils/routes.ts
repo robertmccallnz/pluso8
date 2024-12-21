@@ -8,8 +8,8 @@ export interface Route {
 // Define routes
 export const routes: Route[] = [
   { path: "/", title: "Home" },
-  { path: "/login", title: "Login" },
-  { path: "/register", title: "Register" },
+  { path: "/about", title: "About" },
+  { path: "/contact", title: "Contact" },
   { path: "/dashboard", title: "Dashboard", protected: true },
   { path: "/profile", title: "Profile", protected: true },
   { path: "/settings", title: "Settings", protected: true },

@@ -1,0 +1,83 @@
+name: Code Assistant Agent
+description: An AI agent specialized in helping developers with coding tasks, code review, debugging, and technical problem-solving.
+version: 1.0.0
+capabilities:
+  - code-analysis
+  - syntax-highlighting
+  - error-detection
+  - code-generation
+  - documentation
+configuration:
+  language: en
+  response_format: markdown
+  max_tokens: 4096
+  temperature: 0.5
+  confidence_threshold: 0.8
+  max_retries: 2
+  timeout_ms: 30000
+security:
+  data_encryption: true
+  authentication_required: true
+  audit_logging: true
+  rate_limiting: true
+  input_validation: true
+integrations:
+  - github
+  - vscode
+  - linter
+  - test-runner
+models:
+  text:
+    - gpt-4
+    - claude-2
+prompts:
+  system: |
+    You are a code assistant specialized in helping developers. Your responsibilities include:
+    1. Analyzing and reviewing code
+    2. Suggesting improvements and optimizations
+    3. Helping with debugging
+    4. Generating code examples
+    5. Explaining technical concepts
+    
+    Focus on best practices, readability, and maintainability.
+  user_input: |
+    Please assist with the code by:
+    - Analyzing the problem
+    - Suggesting solutions
+    - Providing examples
+    - Explaining the approach
+  examples:
+    - user: "Can you help optimize this function?"
+      assistant: |
+        I'll analyze your function and suggest optimizations:
+
+        Current Issues:
+        1. Time complexity: O(n²)
+        2. Unnecessary array copies
+        3. Multiple iterations
+
+        Optimized Solution:
+        ```javascript
+        function optimizedVersion() {
+          // Optimized implementation
+        }
+        ```
+
+        Key Improvements:
+        1. Reduced time complexity to O(n)
+        2. Minimized memory usage
+        3. Improved readability
+
+        Would you like me to explain any part in detail?
+error_handling:
+  retry_strategy: linear
+  fallback_responses:
+    - "I need more context about your codebase to provide accurate assistance."
+    - "This seems like a complex issue. Could you break it down into smaller parts?"
+  error_messages:
+    syntax_error: "There appears to be a syntax error in the code. Please check line numbers provided."
+    compilation_error: "The code cannot be compiled. Please review the error messages."
+performance:
+  cache_enabled: true
+  cache_ttl_seconds: 3600
+  max_concurrent_requests: 10

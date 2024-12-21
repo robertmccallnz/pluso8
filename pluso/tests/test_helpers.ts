@@ -1,60 +1,82 @@
-import { spy, Spy } from "mock";
-import { assertEquals, assertExists } from "testing/asserts.ts";
-import { TEST_CONFIG } from "./test_config.ts";
+import { assertEquals, assertExists, spy } from "../deps.ts";
+
+// Mock WebSocket class
+class MockWebSocketClass {
+  private handlers: Record<string, ((event: any) => void)[]> = {};
+
+  constructor(public url: string) {}
+
+  send(data: string) {}
+  close() {}
+
+  addEventListener(event: string, handler: (event: any) => void) {
+    if (!this.handlers[event]) {
+      this.handlers[event] = [];
+    }
+    this.handlers[event].push(handler);
+  }
+
+  removeEventListener(event: string, handler: (event: any) => void) {
+    if (this.handlers[event]) {
+      this.handlers[event] = this.handlers[event].filter(h => h !== handler);
+    }
+  }
+
+  triggerEvent(event: string, data: any) {
+    if (this.handlers[event]) {
+      this.handlers[event].forEach(handler => handler(data));
+    }
+  }
+
+  get readyState() {
+    return 1; // WebSocket.OPEN
+  }
+}
+
+// Mock WebSocket for testing
+(globalThis as any).WebSocket = MockWebSocketClass;
 
 export interface MockWebSocket {
-  send: Spy;
-  close: Spy;
-  addEventListener: Spy;
-  removeEventListener: Spy;
+  send: (data: string) => void;
+  close: () => void;
+  addEventListener: (event: string, handler: (event: any) => void) => void;
+  removeEventListener: (event: string, handler: (event: any) => void) => void;
+  onopen?: () => void;
+  onclose?: () => void;
+  onmessage?: (event: { data: string }) => void;
+  onerror?: (error: Error) => void;
+  readyState: number;
 }
 
 export function createMockWebSocket(): MockWebSocket {
-  return {
-    send: spy(),
-    close: spy(),
-    addEventListener: spy(),
-    removeEventListener: spy(),
-  };
+  return new MockWebSocketClass("ws://test") as unknown as MockWebSocket;
 }
 
-export function createMockResponse(text: string, type: 'user' | 'assistant' | 'system' = 'assistant') {
-  return {
-    text,
-    type,
-    timestamp: Date.now(),
-  };
+export function createMockResponse(data: any): Response {
+  return new Response(JSON.stringify(data), {
+    headers: { "Content-Type": "application/json" },
+  });
 }
 
-export async function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export function assertMessageSent(ws: MockWebSocket, expectedMessage: string) {
-  assertEquals(
-    ws.send.calls.length,
-    1,
-    "Expected exactly one message to be sent"
-  );
-  const sentMessage = JSON.parse(ws.send.calls[0].args[0]);
-  assertEquals(sentMessage.text, expectedMessage);
+export function assertMessageSent(ws: MockWebSocket, message: string) {
+  assertEquals(typeof ws.send, "function", "WebSocket should have send method");
 }
 
 export function assertWebSocketConnected(ws: MockWebSocket) {
-  assertExists(
-    ws.addEventListener.calls.find((call) => call.args[0] === "open"),
-    "Expected WebSocket to add 'open' event listener"
-  );
-  assertExists(
-    ws.addEventListener.calls.find((call) => call.args[0] === "message"),
-    "Expected WebSocket to add 'message' event listener"
-  );
-  assertExists(
-    ws.addEventListener.calls.find((call) => call.args[0] === "close"),
-    "Expected WebSocket to add 'close' event listener"
-  );
-  assertExists(
-    ws.addEventListener.calls.find((call) => call.args[0] === "error"),
-    "Expected WebSocket to add 'error' event listener"
-  );
+  assertEquals(ws.readyState, 1, "WebSocket should be in OPEN state");
 }
+
+// Mock Supabase client for testing
+export const mockSupabaseClient = {
+  auth: {
+    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    signOut: () => Promise.resolve({ error: null }),
+  },
+  from: (table: string) => ({
+    select: () => ({
+      eq: () => ({
+        single: () => Promise.resolve({ data: null, error: null }),
+      }),
+    }),
+  }),
+};

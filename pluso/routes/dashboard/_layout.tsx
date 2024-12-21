@@ -1,36 +1,28 @@
 import { PageProps } from "$fresh/server.ts";
-import { useSignal } from "@preact/signals";
-import Sidebar from "../../components/SideBar.tsx";
+import { DashboardData } from "../../types/dashboard.ts";
 
-interface DashboardLayoutProps extends PageProps {
-  Component: any;
+interface DashboardProps extends PageProps {
+  data: DashboardData;
 }
 
-export default function DashboardLayout({ Component, url }: DashboardLayoutProps) {
-  const menuOpen = useSignal(false);
-
+export default function DashboardLayout({ Component, url, data }: DashboardProps) {
   return (
-    <div data-theme="lemonade" class="min-h-screen bg-base-100">
-      <div class="flex h-screen">
-        <Sidebar currentPath={url.pathname} />
-        
-        {/* Backdrop for mobile */}
-        {menuOpen.value && (
-          <div 
-            class="fixed inset-0 bg-black/20 backdrop-blur-sm z-10 lg:hidden"
-            onClick={() => menuOpen.value = false}
-          ></div>
-        )}
-        
-        {/* Main Content */}
-        <main class="flex-1 p-6 lg:p-8 max-w-7xl mx-auto overflow-auto">
+    <div class="flex h-[calc(100vh-64px)]">
+      {/* Sidebar */}
+      <aside class="w-64 flex-shrink-0 bg-white border-r border-gray-200">
+        <div id="side-bar" data-fresh-island="SideBar" data-props={JSON.stringify({ currentPath: url.pathname })} class="h-full" />
+      </aside>
+
+      {/* Main Content Area */}
+      <main class="flex-1 overflow-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <Component />
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
 
 export const config = {
-  skipInheritance: true,
+  title: "Dashboard",
 };

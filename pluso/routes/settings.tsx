@@ -1,7 +1,7 @@
-import { useSignal } from "@preact/signals";
+import { h } from "https://esm.sh/preact";
 
 export default function SettingsPage() {
-  const savedStatus = useSignal<string>("");
+  let savedStatus = "";
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
@@ -19,12 +19,12 @@ export default function SettingsPage() {
       });
 
       if (response.ok) {
-        savedStatus.value = "Settings saved successfully!";
+        savedStatus = "Settings saved successfully!";
       } else {
-        savedStatus.value = "Failed to save settings.";
+        savedStatus = "Failed to save settings.";
       }
     } catch (error) {
-      savedStatus.value = "Error saving settings.";
+      savedStatus = "An error occurred.";
     }
   };
 
@@ -112,9 +112,9 @@ export default function SettingsPage() {
                   Save Settings
                 </button>
 
-                {savedStatus.value && (
-                  <div class={`alert ${savedStatus.value.includes("success") ? "alert-success" : "alert-error"} mt-4`}>
-                    <span>{savedStatus.value}</span>
+                {savedStatus && (
+                  <div class={`alert ${savedStatus.includes("success") ? "alert-success" : "alert-error"} mt-4`}>
+                    <span>{savedStatus}</span>
                   </div>
                 )}
               </div>

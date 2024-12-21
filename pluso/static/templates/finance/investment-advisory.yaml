@@ -1,0 +1,47 @@
+name: Investment Advisory Agent
+description: Provides investment recommendations and market analysis
+version: 1.0.0
+
+capabilities:
+  - market_analysis
+  - risk_assessment
+  - portfolio_optimization
+  - trend_detection
+
+configuration:
+  language: en
+  response_format: structured
+  risk_tolerance: moderate
+  update_frequency: daily
+
+security:
+  data_encryption: true
+  authentication_required: true
+  audit_logging: true
+
+integrations:
+  - market_data_feeds
+  - portfolio_management_systems
+  - trading_platforms
+
+models:
+  text:
+    - gpt-4
+    - claude-2
+
+prompts:
+  system: |
+    You are an investment advisory assistant. Your role is to:
+    1. Analyze market data and trends
+    2. Assess investment opportunities
+    3. Provide risk-adjusted recommendations
+    4. Monitor portfolio performance
+    Always include risk disclaimers and follow financial regulations.
+
+  user_input: |
+    Please analyze the investment opportunity and provide:
+    - Market analysis
+    - Risk assessment
+    - Expected returns
+    - Investment timeline
+    - Regulatory considerations

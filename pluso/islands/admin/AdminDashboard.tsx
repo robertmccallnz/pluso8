@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "preact/hooks";
-import { Chart } from "chart.js/auto";
+import { Chart } from "npm:chart.js@4.4.1/auto";
 
 interface AdminDashboardProps {
   users: {
@@ -10,191 +10,148 @@ interface AdminDashboardProps {
   agents: {
     total: number;
     active: number;
-    byType: Record<string, number>;
+    new: number;
   };
   metrics: {
-    totalRequests: number;
-    avgResponseTime: number;
-    errorRate: number;
-    costToDate: number;
+    total: number;
+    thisWeek: number;
+    lastWeek: number;
   };
-  systemStatus: {
-    cpu: number;
-    memory: number;
-    storage: number;
-    uptime: number;
+  revenue: {
+    total: number;
+    thisMonth: number;
+    lastMonth: number;
   };
 }
 
 export default function AdminDashboard(props: AdminDashboardProps) {
-  const agentChartRef = useRef<HTMLCanvasElement>(null);
   const metricsChartRef = useRef<HTMLCanvasElement>(null);
+  const revenueChartRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (agentChartRef.current && metricsChartRef.current) {
-      // Agent Distribution Chart
-      new Chart(agentChartRef.current, {
-        type: "doughnut",
-        data: {
-          labels: Object.keys(props.agents.byType),
-          datasets: [{
-            data: Object.values(props.agents.byType),
-            backgroundColor: [
-              "#FF6384",
-              "#36A2EB",
-              "#FFCE56",
-              "#4BC0C0",
-              "#9966FF",
-            ],
-          }],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: "right",
-            },
-            title: {
-              display: true,
-              text: "Agent Distribution by Type",
-            },
-          },
-        },
-      });
-
-      // Metrics Timeline Chart
+    if (metricsChartRef.current && revenueChartRef.current) {
+      // Metrics Chart
       new Chart(metricsChartRef.current, {
         type: "line",
         data: {
-          labels: ["Last 24h", "48h", "72h", "96h", "120h"],
+          labels: ["Last Week", "This Week"],
           datasets: [{
-            label: "Response Time (ms)",
-            data: [
-              props.metrics.avgResponseTime,
-              props.metrics.avgResponseTime * 0.95,
-              props.metrics.avgResponseTime * 1.1,
-              props.metrics.avgResponseTime * 0.9,
-              props.metrics.avgResponseTime * 1.05,
-            ],
-            borderColor: "#36A2EB",
-            tension: 0.1,
-          }],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            title: {
-              display: true,
-              text: "Response Time Trend",
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-            },
-          },
-        },
+            label: "Metrics",
+            data: [props.metrics.lastWeek, props.metrics.thisWeek],
+            borderColor: "rgb(75, 192, 192)",
+            tension: 0.1
+          }]
+        }
+      });
+
+      // Revenue Chart
+      new Chart(revenueChartRef.current, {
+        type: "bar",
+        data: {
+          labels: ["Last Month", "This Month"],
+          datasets: [{
+            label: "Revenue",
+            data: [props.revenue.lastMonth, props.revenue.thisMonth],
+            backgroundColor: "rgb(54, 162, 235)"
+          }]
+        }
       });
     }
   }, [props]);
 
   return (
-    <div class="p-6 max-w-7xl mx-auto">
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-2">Admin Dashboard</h1>
-        <p class="text-gray-600">Monitor system performance and manage users</p>
+    <div class="p-6">
+      <h1 class="text-3xl font-bold mb-8">Admin Dashboard</h1>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Users Card */}
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-lg font-semibold mb-2">Users</h3>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <p class="text-sm text-gray-600">Total</p>
+              <p class="text-xl font-bold">{props.users.total}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Active</p>
+              <p class="text-xl font-bold">{props.users.active}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">New</p>
+              <p class="text-xl font-bold">{props.users.new}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Agents Card */}
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-lg font-semibold mb-2">Agents</h3>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <p class="text-sm text-gray-600">Total</p>
+              <p class="text-xl font-bold">{props.agents.total}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Active</p>
+              <p class="text-xl font-bold">{props.agents.active}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">New</p>
+              <p class="text-xl font-bold">{props.agents.new}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Metrics Card */}
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-lg font-semibold mb-2">Metrics</h3>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <p class="text-sm text-gray-600">Total</p>
+              <p class="text-xl font-bold">{props.metrics.total}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">This Week</p>
+              <p class="text-xl font-bold">{props.metrics.thisWeek}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Last Week</p>
+              <p class="text-xl font-bold">{props.metrics.lastWeek}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Revenue Card */}
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-lg font-semibold mb-2">Revenue</h3>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <p class="text-sm text-gray-600">Total</p>
+              <p class="text-xl font-bold">${props.revenue.total}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">This Month</p>
+              <p class="text-xl font-bold">${props.revenue.thisMonth}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Last Month</p>
+              <p class="text-xl font-bold">${props.revenue.lastMonth}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Quick Stats */}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-gray-500 text-sm font-medium">Total Users</h3>
-          <div class="mt-2 flex items-baseline">
-            <p class="text-3xl font-semibold">{props.users.total}</p>
-            <p class="ml-2 text-sm text-green-600">+{props.users.new} new</p>
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Metrics Chart */}
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-lg font-semibold mb-4">Metrics Trend</h3>
+          <canvas ref={metricsChartRef}></canvas>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-gray-500 text-sm font-medium">Active Agents</h3>
-          <div class="mt-2 flex items-baseline">
-            <p class="text-3xl font-semibold">{props.agents.active}</p>
-            <p class="ml-2 text-sm text-gray-600">of {props.agents.total}</p>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-gray-500 text-sm font-medium">Error Rate</h3>
-          <div class="mt-2 flex items-baseline">
-            <p class="text-3xl font-semibold">{props.metrics.errorRate}%</p>
-            <p class="ml-2 text-sm text-gray-600">last 24h</p>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-gray-500 text-sm font-medium">Cost to Date</h3>
-          <div class="mt-2 flex items-baseline">
-            <p class="text-3xl font-semibold">${props.metrics.costToDate}</p>
-            <p class="ml-2 text-sm text-gray-600">USD</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Charts */}
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
-          <canvas ref={agentChartRef} />
-        </div>
-        <div class="bg-white rounded-lg shadow p-6">
-          <canvas ref={metricsChartRef} />
-        </div>
-      </div>
-
-      {/* System Status */}
-      <div class="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4">System Status</h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <h3 class="text-gray-500 text-sm font-medium">CPU Usage</h3>
-            <p class="mt-1 text-2xl font-semibold">{props.systemStatus.cpu}%</p>
-          </div>
-          <div>
-            <h3 class="text-gray-500 text-sm font-medium">Memory Usage</h3>
-            <p class="mt-1 text-2xl font-semibold">{props.systemStatus.memory}%</p>
-          </div>
-          <div>
-            <h3 class="text-gray-500 text-sm font-medium">Storage</h3>
-            <p class="mt-1 text-2xl font-semibold">{props.systemStatus.storage}%</p>
-          </div>
-          <div>
-            <h3 class="text-gray-500 text-sm font-medium">Uptime</h3>
-            <p class="mt-1 text-2xl font-semibold">{Math.floor(props.systemStatus.uptime / 3600)}h</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-semibold mb-4">Quick Actions</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a
-            href="/admin/users"
-            class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-          >
-            Manage Users
-          </a>
-          <a
-            href="/admin/agents"
-            class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-          >
-            Manage Agents
-          </a>
-          <a
-            href="/admin/settings"
-            class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-          >
-            System Settings
-          </a>
+        {/* Revenue Chart */}
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-lg font-semibold mb-4">Revenue Trend</h3>
+          <canvas ref={revenueChartRef}></canvas>
         </div>
       </div>
     </div>

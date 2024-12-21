@@ -1,11 +1,8 @@
-export type AgentCapability = 
-  | 'chat'
-  | 'image'
-  | 'rag'
-  | 'content'
-  | 'code'
-  | 'analysis'
-  | 'workflow';
+// Centralized and flexible configuration for agent creation
+export interface AgentCapability {
+  type: 'chat' | 'image' | 'rag' | 'content' | 'code' | 'analysis' | 'workflow';
+  description: string;
+}
 
 export interface AgentUseCase {
   id: string;
@@ -101,7 +98,7 @@ export const DEFAULT_USE_CASES: Record<string, AgentUseCase> = {
     id: 'chat',
     name: 'Conversational AI',
     description: 'Create interactive chat agents for customer service, support, or general conversation',
-    capabilities: ['chat'],
+    capabilities: [{ type: 'chat', description: 'Conversational capabilities' }],
     suggestedModels: ['gpt-4', 'claude-2', 'palm-2'],
     templates: ['customer-service', 'technical-support', 'sales-assistant'],
     evaluationCriteria: ['response-quality', 'conversation-flow', 'task-completion']
@@ -110,7 +107,7 @@ export const DEFAULT_USE_CASES: Record<string, AgentUseCase> = {
     id: 'rag',
     name: 'Retrieval Augmented Generation',
     description: 'Build agents that can access and reason over large knowledge bases',
-    capabilities: ['rag', 'chat'],
+    capabilities: [{ type: 'rag', description: 'Retrieval augmented generation capabilities' }, { type: 'chat', description: 'Conversational capabilities' }],
     suggestedModels: ['gpt-4', 'claude-2'],
     templates: ['knowledge-base', 'document-qa', 'research-assistant'],
     evaluationCriteria: ['accuracy', 'relevance', 'citation-quality']
@@ -119,7 +116,7 @@ export const DEFAULT_USE_CASES: Record<string, AgentUseCase> = {
     id: 'content',
     name: 'Content Generation',
     description: 'Create agents for generating marketing, technical, or creative content',
-    capabilities: ['content'],
+    capabilities: [{ type: 'content', description: 'Content generation capabilities' }],
     suggestedModels: ['gpt-4', 'claude-2', 'palm-2'],
     templates: ['blog-writer', 'social-media', 'technical-writer'],
     evaluationCriteria: ['creativity', 'grammar', 'tone-consistency']
@@ -128,7 +125,7 @@ export const DEFAULT_USE_CASES: Record<string, AgentUseCase> = {
     id: 'image',
     name: 'Image Generation & Analysis',
     description: 'Create agents that can generate, edit, or analyze images',
-    capabilities: ['image'],
+    capabilities: [{ type: 'image', description: 'Image generation and analysis capabilities' }],
     suggestedModels: ['dall-e-3', 'stable-diffusion-xl', 'midjourney'],
     templates: ['image-generator', 'image-editor', 'image-analyzer'],
     evaluationCriteria: ['image-quality', 'prompt-adherence', 'artistic-merit']
@@ -137,7 +134,7 @@ export const DEFAULT_USE_CASES: Record<string, AgentUseCase> = {
     id: 'code',
     name: 'Code Generation & Analysis',
     description: 'Build agents for code generation, review, and optimization',
-    capabilities: ['code'],
+    capabilities: [{ type: 'code', description: 'Code generation and analysis capabilities' }],
     suggestedModels: ['gpt-4', 'claude-2', 'codellama'],
     templates: ['code-generator', 'code-reviewer', 'code-optimizer'],
     evaluationCriteria: ['code-quality', 'performance', 'security']
@@ -146,7 +143,7 @@ export const DEFAULT_USE_CASES: Record<string, AgentUseCase> = {
     id: 'analysis',
     name: 'Data Analysis & Insights',
     description: 'Create agents for analyzing data and generating insights',
-    capabilities: ['analysis'],
+    capabilities: [{ type: 'analysis', description: 'Data analysis and insights capabilities' }],
     suggestedModels: ['gpt-4', 'claude-2'],
     templates: ['data-analyzer', 'insight-generator', 'report-writer'],
     evaluationCriteria: ['accuracy', 'insight-quality', 'visualization']
@@ -155,7 +152,7 @@ export const DEFAULT_USE_CASES: Record<string, AgentUseCase> = {
     id: 'workflow',
     name: 'Workflow Automation',
     description: 'Build agents that can orchestrate and automate complex workflows',
-    capabilities: ['workflow'],
+    capabilities: [{ type: 'workflow', description: 'Workflow automation capabilities' }],
     suggestedModels: ['gpt-4', 'claude-2'],
     templates: ['workflow-designer', 'task-coordinator', 'process-optimizer'],
     evaluationCriteria: ['efficiency', 'reliability', 'integration']

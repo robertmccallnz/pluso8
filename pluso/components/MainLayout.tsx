@@ -1,7 +1,6 @@
 import { type ComponentChildren } from "preact";
 import { useEffect, useSignal } from "preact/hooks";
-import { useLocation } from "preact-iso";
-import WidgetInterface from "../islands/interfaces/Widget.tsx";
+import MaiaWidgetInterface from "../islands/interfaces/MaiaWidgetInterface.tsx";
 
 interface MainLayoutProps {
   children: ComponentChildren;
@@ -9,29 +8,25 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
   const showChat = useSignal(false);
-  const location = useLocation();
 
   useEffect(() => {
-    // Only show chat automatically on home page after 5 seconds
-    if (location.path === "/") {
-      const timer = setTimeout(() => {
-        showChat.value = true;
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [location.path]);
+    const timer = setTimeout(() => {
+      showChat.value = true;
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const maiaAgent = {
     id: "maia",
     name: "Maia",
-    avatar: "/maia-avatar.png", // Make sure this path is correct
+    avatar: "/maia-avatar.png",
     description: "Your AI assistant"
   };
 
   return (
     <div>
       {children}
-      <WidgetInterface
+      <MaiaWidgetInterface
         initialOpen={showChat.value}
         agents={[maiaAgent]}
         currentAgent="maia"

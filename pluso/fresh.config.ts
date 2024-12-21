@@ -1,16 +1,19 @@
 import { defineConfig } from "$fresh/server.ts";
-import twindPlugin from "$fresh/plugins/twind.ts";
+import myIslandPlugin from "./plugins/myIslandPlugin.ts";
+import linkInjectPlugin from "./plugins/linkInjectPlugin.ts";
+import myCoolPlugin from "./plugins/myCoolPlugin.ts";
 
 export default defineConfig({
   plugins: [
-    twindPlugin({
-      selfURL: import.meta.url,
-      configPath: "./twind.config.ts",
-    }),
+    myIslandPlugin(),
+    linkInjectPlugin(),
+    myCoolPlugin(),
   ],
+  router: {
+    trailingSlash: false
+  },
   static: {
-    maxAge: 120,
-    immutable: true,
+    maxAge: 60 * 60, // 1 hour
   },
   build: {
     target: "es2022",

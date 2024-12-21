@@ -25,6 +25,7 @@ async function main() {
   const criticalComponents = [
     join(islandsDir, "dashboard", "CreateAgent.tsx"),
     join(islandsDir, "CreateAgentFlow.tsx"),
+    join(islandsDir, "AgentCreation", "AgentCreationWizard.tsx"),
     join(islandsDir, "agents", "maia", "MaiaWidget.tsx"),
     join(islandsDir, "agents", "jeff", "JeffWidget.tsx"),
     join(islandsDir, "agents", "petunia", "PetuniaWidget.tsx"),
