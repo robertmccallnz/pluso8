@@ -1,142 +1,160 @@
-// Dashboard Types
-export interface AgentStats {
-  agentId: string;
-  name: string;
-  description: string;
-  successRate: number;
-  avgResponseTime: number;
-  totalConversations: number;
-  totalTokens: number;
-  totalCost: number;
-  lastActive: number;
-  primaryModelUsage: number;
-  fallbackModelUsage: number;
-  evaluationResults: Record<string, number>;
-}
+import { AgentConfig } from "../agents/types/agent.ts";
 
-export interface DashboardData {
-  agents: AgentStats[];
-  industries: IndustryCategory[];
-  templates: AgentTemplate[];
-  stats: {
-    totalAgents: number;
-    activeAgents: number;
-    totalRequests: number;
-    averageLatency: number;
-  };
-  metricsData: {
-    timestamps: string[];
-    petunia: number[];
-    maia: number[];
-    jeff: number[];
-  };
-}
-
-export interface IndustryCategory {
+export interface AgentVersion {
   id: string;
-  name: string;
-  description: string;
-  icon: string;
-  templates: string[];
-}
-
-export interface AgentTemplate {
-  id: string;
-  name: string;
-  description: string;
-  industry: string;
-  type: AgentType;
-  systemPrompt: string;
-  features: string[];
-  requiredModels: {
-    primary: string[];
-    fallback?: string[];
-    embedding?: string[];
-    vision?: string[];
-  };
-  evaluationCriteria: {
-    id: string;
-    name: string;
-    description: string;
-    threshold: number;
-    weight: number;
-  }[];
-}
-
-export type AgentType = "chat" | "rag" | "multimodal" | "function" | "autonomous";
-
-export interface AgentConfig {
-  id: string;
-  name: string;
-  description: string;
-  type: AgentType;
-  industry: string;
-  template: string;
-  features: string[];
-  models: {
-    primary: string;
-    fallback?: string;
-    embedding?: string;
-    vision?: string;
-  };
-  systemPrompt: string;
-  yaml: string;
-  evaluations: {
-    enabled: boolean;
-    criteria?: string[];
-    testCases?: Record<string, TestCase[]>;
-  };
-  metrics: {
-    enabled: boolean;
-    supabaseConfig?: {
-      url: string;
-      key: string;
-      table: string;
-    };
-  };
-}
-
-export interface AgentCreationData {
-  name: string;
-  description: string;
-  type: AgentType;
-  industry: string;
-  template: string;
-  features: string[];
-  models: {
-    primary: string;
-    fallback?: string;
-    embedding?: string;
-    vision?: string;
-  };
-  systemPrompt: string;
-  evaluations: boolean;
-  evaluationCriteria?: string[];
-  testCases?: Record<string, TestCase[]>;
-  metrics: boolean;
-}
-
-export interface TestCase {
-  input: string;
-  expected: string;
-  description?: string;
+  timestamp: string;
+  config: AgentConfig;
+  createdBy: string;
+  changes: string[];
 }
 
 export interface AgentMetrics {
-  agentId: string;
-  timestamp: number;
-  success: boolean;
-  responseTime: number;
-  conversationId: string;
-  tokens: number;
-  cost: number;
+  requestCount: number;
+  averageResponseTime: number;
+  errorRate: number;
+  lastUsed: string;
+  tokenUsage: {
+    prompt: number;
+    completion: number;
+    total: number;
+    cost: number;
+  };
+  dailyStats: {
+    date: string;
+    requests: number;
+    errors: number;
+    tokenUsage: number;
+    cost: number;
+  }[];
 }
 
-export interface EvaluationResult {
-  agentId: string;
-  timestamp: number;
-  criteriaName: string;
-  score: number;
-  passed: boolean;
-  metadata?: Record<string, unknown>;
+export interface AgentCollaborator {
+  id: string;
+  email: string;
+  role: "viewer" | "editor" | "admin";
+  addedAt: string;
+  lastActive: string;
+}
+
+export interface AgentTest {
+  id: string;
+  name: string;
+  description: string;
+  testCases: {
+    input: string;
+    expectedOutput: string;
+    evaluation: {
+      accuracy: number;
+      latency: number;
+      tokenUsage: number;
+    };
+  }[];
+  lastRun: string;
+  overallScore: number;
+}
+
+export interface WebhookConfig {
+  id: string;
+  url: string;
+  events: Array<"request" | "response" | "error" | "status_change">;
+  secret: string;
+  enabled: boolean;
+  lastTriggered?: string;
+  failureCount: number;
+}
+
+export interface RateLimitConfig {
+  requests: {
+    perSecond: number;
+    perMinute: number;
+    perHour: number;
+    perDay: number;
+  };
+  tokens: {
+    perDay: number;
+    perMonth: number;
+  };
+  cost: {
+    perDay: number;
+    perMonth: number;
+  };
+}
+
+export interface OptimizationConfig {
+  caching: {
+    enabled: boolean;
+    ttl: number;
+    maxSize: number;
+  };
+  batching: {
+    enabled: boolean;
+    maxSize: number;
+    maxWait: number;
+  };
+  compression: boolean;
+  priorityQueue: {
+    enabled: boolean;
+    levels: number;
+  };
+}
+
+export interface AgentEvaluation {
+  id: string;
+  timestamp: string;
+  metrics: {
+    accuracy: number;
+    consistency: number;
+    latency: number;
+    reliability: number;
+    safety: number;
+  };
+  tests: {
+    passed: number;
+    failed: number;
+    total: number;
+  };
+  recommendations: {
+    type: "critical" | "warning" | "suggestion";
+    message: string;
+    impact: number;
+  }[];
+}
+
+export interface ApiKey {
+  id: string;
+  name: string;
+  prefix: string;
+  lastUsed: string | null;
+  createdAt: string;
+  expiresAt: string | null;
+  status: "active" | "expired" | "revoked";
+  permissions: {
+    read: boolean;
+    write: boolean;
+    deploy: boolean;
+    manage: boolean;
+  };
+  metadata: {
+    createdBy: string;
+    environment: "development" | "production";
+    description?: string;
+  };
+}
+
+export interface DashboardData {
+  agent: {
+    id: string;
+    config: AgentConfig;
+    status: "online" | "offline" | "error";
+    lastDeployed: string;
+  };
+  versions: AgentVersion[];
+  metrics: AgentMetrics;
+  collaborators: AgentCollaborator[];
+  tests: AgentTest[];
+  webhooks: WebhookConfig[];
+  rateLimits: RateLimitConfig;
+  optimization: OptimizationConfig;
+  evaluations: AgentEvaluation[];
+  apiKeys: ApiKey[];
 }
